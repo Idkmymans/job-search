@@ -50,6 +50,9 @@ def Search():
         print("invalid choice")
 
 while True:
+    fo = open("tenders.json", "w")
+    fo.write(json.dumps(tenders, indent=2))
+
     print("--options--")
     print("1. view all tenders")
     print("2. search")
@@ -84,5 +87,5 @@ while True:
             break
         case _:
             print("invalid choice")
-
+    fo.close()
     break

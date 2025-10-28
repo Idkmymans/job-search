@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Tender 1",
+    "province": "Bagmati",
+    "organization": "Urban Dev Office",
+    "amount": 50000,
+    "deadline": "2024-2-2"
+  },
+  {
+    "title": "Tender 2",
+    "province": "Karnali",
+    "organization": "DoJ",
+    "amount": 52000,
+    "deadline": "2024-3-2"
+  },
+  {
+    "title": "Tender 3",
+    "province": "Bagmati",
+    "organization": "PLE",
+    "amount": 12000,
+    "deadline": "2024-1-2"
+  },
+  {
+    "title": "Tender 4",
+    "province": "Madesh",
+    "organization": "Urban Dev Office",
+    "amount": 30000,
+    "deadline": "2023-2-2"
+  }
+]
