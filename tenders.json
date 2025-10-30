@@ -35,5 +35,29 @@
     "deadline": "2034-09-09",
     "category": "works",
     "description": "this is a test to add tenders"
+  },
+  {
+    "title": "Project Title IFB/RFP/EOI/PQ No.\nProcurement Category \n    \n- Select One -\n    Consultancy\n    Goods\n    Other Services\n    Works\nProcurement Method \n    \n- Select One -\n    Commodity Purchase\n    Direct Purchase\n    FBS\n    Force Account\n    ICB\n    Least Cost selection\n    NCB\n    QBS\n    QCBS\n    Ration\n    Sealed Quotation\n    User Committee\nPublic Entity Select Child PE \n    \n--------Select One---------\n  Notice Publication Date\nLast Date of Bid Submission\nType of Contracts \n    \n- Select One -\n    Contract for Supply of specific goods or other service\n    Framework or unit rate contract\n    Multi-year contract\n    Design, supply and installation contract\n    Turn Key contract\n    Unit rate contract\n    Lump sum contract\n    Cost-reimbursement contract\n    Time and material rate contract\n    Design and build contract\n    Management contract\n    Performance based maintenance management contract\n    Piece -work contract\n    Time-based contract\n    Performance-based fee paying contract\n    Percentage based contract\n    Indefinite service period contract\n    lump sum contract\n    lump sum contract\n    Time-based contract\n    Performance-based fee paying contract\n    Percentage based contract\n    Indefinite service period contract\n    EPC",
+    "organization": "Search Opportunities\nProject Title IFB/RFP/EOI/PQ No.\nProcurement Category \n    \n- Select One -\n    Consultancy\n    Goods\n    Other Services\n    Works\nProcurement Method \n    \n- Select One -\n    Commodity Purchase\n    Direct Purchase\n    FBS\n    Force Account\n    ICB\n    Least Cost selection\n    NCB\n    QBS\n    QCBS\n    Ration\n    Sealed Quotation\n    User Committee\nPublic Entity Select Child PE \n    \n--------Select One---------\n  Notice Publication Date\nLast Date of Bid Submission\nType of Contracts \n    \n- Select One -\n    Contract for Supply of specific goods or other service\n    Framework or unit rate contract\n    Multi-year contract\n    Design, supply and installation contract\n    Turn Key contract\n    Unit rate contract\n    Lump sum contract\n    Cost-reimbursement contract\n    Time and material rate contract\n    Design and build contract\n    Management contract\n    Performance based maintenance management contract\n    Piece -work contract\n    Time-based contract\n    Performance-based fee paying contract\n    Percentage based contract\n    Indefinite service period contract\n    lump sum contract\n    lump sum contract\n    Time-based contract\n    Performance-based fee paying contract\n    Percentage based contract\n    Indefinite service period contract\n    EPC\n       \nSearch Opportunities Result\nSl. No. IFB / RFP / EOI / PQ No. Project Title Public Entity Name Procurement\nType Status Notice Published\nDate Last Date of\nBid Submission No of\nDays Left\n1 SDO/HUM/W/NCB/04/082-83 Mandhara ma vi Auditorium Hall &amp; Manch construction work Social Development Office,Simkot,Humla Works  NCB 19-10-2025 00:00 18-12-2025 12:00 49 days\n2 ICB-01-EMD-EE-082/83 SUPPLY AND DELIVERY OF SPARE PARTS FOR AERONAUTICAL GROUND LIGHTING (AGL) SYSTEM FOR DIFFERENT DOMESTIC AIRPORTS Electro Mechanical Department Goods  ICB 19-10-2025 00:00 03-12-2025 12:00 34 days\n3 ICB-02-EMD-EE-082/83 SUPPLY DELIVERY INSTALLATION UP-GRADATION AND MAINTENANCE OF TAXIING GUIDANCE SIGN &amp; IWDI AT DIFFERENT DOMESTIC AIRPORT. Electro Mechanical Department Goods  ICB 19-10-2025 00:00 03-12-2025 12:00 34 days\n4 ICB/DCSD-082/83-13 Supply and Delivery of Medium Voltage Covered Conductor (MVCC) for Koshi, Madhesh and Bagmati Province NEA, Material Management Division Goods  ICB 17-10-2025 10:30 03-12-2025 12:00 34 days\n5 ICB/DCSD-082/83-14 Supply and Delivery of Medium Voltage Covered Conductor (MVCC) for Gandaki, Lumbini, Karnali and Sudur Paschim Province NEA, Material Management Division Goods  ICB 17-10-2025 10:30 03-12-2025 12:00 34 days\n6 ICB/DCSD-082/83-15 Supply and Delivery of Low Voltage Aerial Bunched Cable (LVABC) for Koshi and Madhesh Province NEA, Material Management Division Goods  ICB 17-10-2025 10:30 02-12-2025 12:00 33 days\n7 ICB/DCSD-082/83-16 Supply and Delivery of Low Voltage Aerial Bunched Cable (LVABC) for Bagmati and Gandaki Province NEA, Material Management Division Goods  ICB 17-10-2025 10:30 02-12-2025 12:00 33 days\n8 ICB/DCSD-082/83-17 Supply and Delivery of Low Voltage Aerial Bunched Cable (LVABC) for Lumbini, Karnali and Sudurpaschim Province NEA, Material Management Division Goods  ICB 17-10-2025 10:30 02-12-2025 12:00 33 days\n9 6-09-082-83-NCBG-KMC Supply and delivery of Thermoplastic paint and Retro-Reflective Glass Beads at KMC Kathmandu Metropolitan City Office Goods  NCB 30-10-2025 12:00 01-12-2025 12:00 32 days\n10 6-10-082-83-NCBG-KMC Supply and Delivery of tea ,coffee and other goods at EKAL SEWA KENDRA of KMC Kathmandu Metropolitan City Office Goods  NCB 30-10-2025 12:00 01-12-2025 12:00 32 days\n    10\n    20\n    30",
+    "amount": 1.0,
+    "deadline": "2025-10-19",
+    "category": "Consultancy",
+    "province": "Not specified",
+    "description": "",
+    "source": "Bolpatra",
+    "scraped_date": "2025-10-30",
+    "url": null
+  },
+  {
+    "title": "- Select One -\n    Consultancy\n    Goods\n    Other Services\n    Works", 
+    "organization": "Not specified",
+    "amount": 0,
+    "deadline": "Not specified",
+    "category": "Consultancy",
+    "province": "Not specified",
+    "description": "",
+    "source": "Bolpatra",
+    "scraped_date": "2025-10-30",
+    "url": null
   }
 ]

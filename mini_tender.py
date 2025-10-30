@@ -73,7 +73,7 @@ class BolpatraScraper:
             print("\n📡 Connecting to Bolpatra...")
             
             # Navigate to public tenders page
-            self.driver.get(f"{base_url}/public")
+            self.driver.get(f"{base_url}/searchOpportunity")
             time.sleep(3)  # Wait for page load
             
             print("✓ Page loaded successfully")
