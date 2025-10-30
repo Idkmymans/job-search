@@ -26,5 +26,14 @@
     "organization": "Urban Dev Office",
     "amount": 30000,
     "deadline": "2023-2-2"
+  },
+  {
+    "title": "test1",
+    "province": "karnali",
+    "organization": "idl",
+    "amount": 333.0,
+    "deadline": "2034-09-09",
+    "category": "works",
+    "description": "this is a test to add tenders"
   }
 ]
