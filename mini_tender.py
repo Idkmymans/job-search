@@ -1,3 +1,9 @@
+#imp notice:
+# fix the scrape_current_page method to not rely on dynamic column indices
+#fix so that json is updated DURING scraping
+# fix formatting of tenders(main issue probably)
+
+
 import json
 import os
 import csv
@@ -9,6 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 # Architecture and consultancy related keywords
@@ -148,6 +155,7 @@ class BolpatraScraper:
             page = start_page
             tenders_on_page = 0
             total_tenders = 0
+            max_pages = 80
             
             while True:
                 print(f"\n📄 Scraping page {page}...")
@@ -165,15 +173,24 @@ class BolpatraScraper:
                 # Save checkpoint after successful page processing
                 self.save_checkpoint(page)
                 
+                # Handle pagination
+                next_page = page + 1
+                
+                # Check page limit
+                if next_page > max_pages:
+                    print("✅ Reached maximum page limit.")
+                    self.clear_checkpoint()
+                    break
+                
                 # Try to go to next page
                 if scrape_all_pages:
-                    if not self.go_to_next_page():
-                        print("   ✓ Reached last page")
-                        self.clear_checkpoint()  # Clear checkpoint on successful completion
+                    if not self.go_to_next_page(next_page):
+                        print("   ✓ Reached last page or navigation failed")
+                        self.clear_checkpoint()
                         break
-                    page += 1
+                    page = next_page  # Update page number only after successful navigation
                 else:
-                    self.clear_checkpoint()  # Clear checkpoint on successful completion
+                    self.clear_checkpoint()
                     break
                 
                 time.sleep(2)  # Be polite to the server
@@ -193,10 +210,6 @@ class BolpatraScraper:
             tender_table = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult"))
             )
-            
-            # First get the header row to identify columns
-            headers = tender_table.find_elements(By.CSS_SELECTOR, "thead tr th")
-            
             
             # Find all tender rows
             tender_rows = tender_table.find_elements(By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr")
@@ -291,61 +304,39 @@ class BolpatraScraper:
         except:
             return date_str
     
-    def go_to_next_page(self):
-        """Navigate to next page if valid tenders exist."""
+    def go_to_next_page(self, next_page):
+        """Navigate to next page of tender listings."""
         try:
-            # Wait for rows to load
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr"))
-            )
-            tender_rows = self.driver.find_elements(By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr")
-
-            has_valid_tenders = False
-            for row in tender_rows:
-                cells = row.find_elements(By.TAG_NAME, "td")
-                if len(cells) < 5:
-                    continue
-                print("Columns found:", len(cells), [c.text for c in cells])  # debug
-                days_left_text = cells[-1].text.strip()  # safer to take last column
-                try:
-                    days_left = int(re.search(r'\d+', days_left_text).group())
-                    if days_left > 28:
-                        has_valid_tenders = True
-                        break
-                except ValueError:
-                    continue
-
-            if not has_valid_tenders:
-                print("   No tenders with >28 days left found on this page")
-                return False
-
-            # Find next page button (multiple fallbacks)
+            
+            # Find and clear the page input
+            goto_input = self.driver.find_element(By.CSS_SELECTOR, "input.gotoPage")
+            goto_input.clear()
+            goto_input.send_keys(str(next_page))
+            time.sleep(1)  # Brief pause after typing
+            
+            # Click the go button
+            gobutton = self.driver.find_element(By.CSS_SELECTOR, "img.goto")
+            gobutton.click()
+            
+            # Wait for the page to load and verify we're on the right page
             try:
-                next_button = self.driver.find_element(By.CSS_SELECTOR, "a#next, button#next, img.next")
-            except NoSuchElementException:
-                print("   ⚠ No next button found.")
+                # Wait for table to load
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr"))
+                )
+                
+                
+                print(f"✅ Successfully navigated to page {next_page}")
+                return True
+                
+            except TimeoutException:
+                print(f"⚠ Page {next_page} appears to be empty or failed to load")
                 return False
-
-            # Check if disabled
-            if not next_button.is_enabled() or "disabled" in next_button.get_attribute("outerHTML").lower():
-                print("   🚫 Next button disabled or hidden.")
-                return False
-
-            # Click next and wait for reload
-            next_button.click()
-            WebDriverWait(self.driver, 10).until(EC.staleness_of(tender_rows[0]))
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr"))
-            )
-            time.sleep(1)
-            print("➡️  Moved to next page successfully.")
-            return True
-
-        except NoSuchElementException:
-            print("   ⚠ Table not found.")
+                
+        except Exception as e:
+            print(f"⚠ Failed to navigate to page {next_page}: {str(e)}")
             return False
-    
-    
+
     def get_tender_details(self, tender_url):
         """Get detailed information about a specific tender."""
         try:
@@ -419,11 +410,23 @@ class TenderManager:
     def save_to_json(self):
         """Save tenders to JSON file."""
         try:
+            print(f"\n💾 Saving {len(self.tenders)} tenders to {self.json_filename}")
+            
+            # DEBUG: Print the first tender as a sample
+            if self.tenders:
+                print(f"   Sample tender being saved: {self.tenders[0]['title']}")
+            
             with open(self.json_filename, "w", encoding='utf-8') as f:
                 json.dump(self.tenders, f, indent=2, ensure_ascii=False)
-            print(f"✓ Saved to {self.json_filename}")
+            
+            # Verify the save by checking file size
+            file_size = os.path.getsize(self.json_filename)
+            print(f"✓ Saved to {self.json_filename} (Size: {file_size} bytes)")
+            
         except Exception as e:
             print(f"✗ Error saving JSON: {e}")
+            import traceback
+            traceback.print_exc()
     
     def save_to_csv(self):
         """Save tenders to CSV file."""
@@ -505,7 +508,7 @@ class TenderManager:
                 return 0
             
             # Scrape all pages (scrape_all_pages=True)
-            scraped_tenders = self.scraper.scrape_tenders(scrape_all_pages=True)
+            scraped_tenders =list(self.scraper.scrape_tenders(scrape_all_pages=True))
             
             # Filter for relevant tenders
             relevant_tenders = [
@@ -518,8 +521,10 @@ class TenderManager:
             duplicates = 0
             
             for tender in scraped_tenders:
-                if not self.is_relevant_tender(tender['title'], tender.get('description', '')):
-                    continue
+                # TEMPORARY: Disabled relevant_tender filter
+                # To re-enable relevancy checking, uncomment these lines:
+                # if not self.is_relevant_tender(tender['title'], tender.get('description', '')):
+                #     continue
                     
                 # Check for duplicates by title and organization
                 is_duplicate = any(
@@ -531,8 +536,10 @@ class TenderManager:
                 if not is_duplicate:
                     self.tenders.append(tender)
                     print(f"\n✓ New tender found: {tender['title'][:60]}...")
-                    # Save immediately after each new tender
-                    self.save_data(format='both')
+                    # DEBUG: Print current tenders count
+                    print(f"   Current tenders in memory: {len(self.tenders)}")
+                    # Save only to JSON for now
+                    self.save_to_json()
                     added += 1
                 else:
                     print(f"\n↺ Duplicate tender: {tender['title'][:60]}...")
@@ -551,7 +558,7 @@ class TenderManager:
             return added
             
         except Exception as e:
-            print(f"\n✗ Scraping error: {e}")
+            print(f"\n✗ this is a  Scraping error: {e}")
             import traceback
             traceback.print_exc()
             return 0
@@ -677,7 +684,6 @@ class TenderManager:
                 print("Tender not added.")
                 return
         
-        province = input("Enter province: ").strip()
         organization = input("Enter organization: ").strip()
         
         try:
@@ -699,8 +705,9 @@ class TenderManager:
         
         new_tender = {
             "title": title,
-            "province": province,
+            
             "organization": organization,
+
             "amount": amount,
             "deadline": deadline,
             "category": category,
@@ -779,9 +786,10 @@ def main():
         print("4. 🌐 Scrape tenders from Bolpatra (Auto - All Pages)")
         print("5. Export to CSV (timestamped)")
         print("6. View all tenders (including non-relevant)")
-        print("7. Save current data")
-        print("8. Statistics")
-        print("9. Exit")
+        print("7. clear tenders")
+        print("8. Save current data")
+        print("9. Statistics")
+        print("10. Exit")
         
         choice = input("\nEnter your choice: ").strip()
         
@@ -814,9 +822,20 @@ def main():
             tm.view_all_tenders(filter_relevant=False)
         
         elif choice == "7":
+            confirm = input(
+                "Are you sure you want to clear ALL tenders from memory? (y/n): "
+            ).lower()
+            if confirm == 'y':
+                tm.tenders = []
+                tm.save_data(format='both')
+                print("\n✓ All tenders cleared from memory and saved.")
+            else:
+                print("Operation cancelled.")
+
+        elif choice == "8":
             tm.choose_save_format()
         
-        elif choice == "8":
+        elif choice == "9":
             total = len(tm.tenders)
             relevant = len([t for t in tm.tenders if tm.is_relevant_tender(t['title'])])
             
@@ -836,7 +855,7 @@ def main():
                 print(f"      {source}: {count}")
             print(f"{'='*50}")
         
-        elif choice == "9":
+        elif choice == "10":
             print("\n💾 Saving data before exit...")
             tm.save_data(format='both')
             print("\n👋 Thank you for using the Tender Management System!")
