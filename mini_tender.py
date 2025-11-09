@@ -25,6 +25,46 @@ class BolpatraScraper:
     def __init__(self, headless=True):
         self.headless = headless
         self.driver = None
+        self.checkpoint_file = "scraper_checkpoint.json"
+        
+    def save_checkpoint(self, page_number):
+        """Save the current page number to resume later."""
+        try:
+            checkpoint_data = {
+                'last_page': page_number,
+                'timestamp': datetime.now().isoformat(),
+                'url': self.driver.current_url if self.driver else None
+            }
+            with open(self.checkpoint_file, 'w') as f:
+                json.dump(checkpoint_data, f)
+            print(f"   ✓ Checkpoint saved: page {page_number}")
+        except Exception as e:
+            print(f"   ⚠ Could not save checkpoint: {e}")
+    
+    def load_checkpoint(self):
+        """Load the last saved checkpoint if it exists."""
+        try:
+            if os.path.exists(self.checkpoint_file):
+                with open(self.checkpoint_file, 'r') as f:
+                    data = json.load(f)
+                    last_page = data.get('last_page', 1)
+                    last_url = data.get('url')
+                    timestamp = data.get('timestamp')
+                    print(f"\n📋 Found checkpoint from {timestamp}")
+                    print(f"   Last scraped page: {last_page}")
+                    return last_page, last_url
+        except Exception as e:
+            print(f"   ⚠ Could not load checkpoint: {e}")
+        return 1, None
+    
+    def clear_checkpoint(self):
+        """Clear the checkpoint after successful completion."""
+        if os.path.exists(self.checkpoint_file):
+            try:
+                os.remove(self.checkpoint_file)
+                print("   ✓ Checkpoint cleared")
+            except:
+                pass
     
     def init_driver(self):
         """Initialize Chrome WebDriver with options."""
@@ -56,106 +96,131 @@ class BolpatraScraper:
             self.driver.quit()
             print("✓ Browser closed")
     
-    def scrape_tenders(self, scrape_all_pages=True):
+    def scrape_tenders(self, scrape_all_pages=True, resume=True):
         """
         Scrape tenders from bolpatra.gov.np
-        Returns list of tender dictionaries
+        Yields tender dictionaries one at a time
         scrape_all_pages: If True, scrapes until no more pages available
+        resume: If True, attempts to resume from last checkpoint
         """
         if not self.driver:
             if not self.init_driver():
-                return []
+                return
         
-        tenders = []
         base_url = "https://bolpatra.gov.np/egp"
         
         try:
             print("\n📡 Connecting to Bolpatra...")
             
-            # Navigate to public tenders page
-            self.driver.get(f"{base_url}/searchOpportunity")
-            time.sleep(3)  # Wait for page load
+            # Load checkpoint if resuming
+            start_page = 1
+            if resume:
+                start_page, last_url = self.load_checkpoint()
+                if last_url:
+                    print(f"   Resuming from page {start_page}")
+                    self.driver.get(last_url)
+                    time.sleep(3)
+                else:
+                    start_page = 1
             
-            print("✓ Page loaded successfully")
-            
-            # Try to find and click on "Published Bids" or similar
-            try:
-                # Look for the bid opportunities link
-                opportunities_link = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.LINK_TEXT, "Bid Opportunities"))
-                )
-                opportunities_link.click()
-                time.sleep(2)
-            except:
-                # Alternative: direct navigation
+            # If not resuming or no valid checkpoint, start from beginning
+            if start_page == 1:
                 self.driver.get(f"{base_url}/searchOpportunity")
-                time.sleep(3)
+                time.sleep(3)  # Wait for page load
+                print("✓ Page loaded successfully")
+                
+                # Try to find and click on "Published Bids" or similar
+                try:
+                    # Look for the bid opportunities link
+                    opportunities_link = WebDriverWait(self.driver, 10).until(
+                        EC.element_to_be_clickable((By.LINK_TEXT, "Published bids"))
+                    )
+                    opportunities_link.click()
+                    time.sleep(2)
+                except:
+                    # Alternative: direct navigation
+                    self.driver.get(f"{base_url}/searchOpportunity")
+                    time.sleep(3)
             
             print("✓ Navigated to tender listings")
             
             # Scrape all pages
-            page = 1
+            page = start_page
+            tenders_on_page = 0
+            total_tenders = 0
+            
             while True:
                 print(f"\n📄 Scraping page {page}...")
+                tenders_on_page = 0
                 
-                page_tenders = self.scrape_current_page()
-                tenders.extend(page_tenders)
+                # Get tenders one at a time
+                for tender in self.scrape_current_page():
+                    tenders_on_page += 1
+                    total_tenders += 1
+                    yield tender
                 
-                print(f"   Found {len(page_tenders)} tenders on this page")
+                print(f"   Found {tenders_on_page} tenders on this page")
+                print(f"   Total tenders so far: {total_tenders}")
+                
+                # Save checkpoint after successful page processing
+                self.save_checkpoint(page)
                 
                 # Try to go to next page
                 if scrape_all_pages:
                     if not self.go_to_next_page():
                         print("   ✓ Reached last page")
+                        self.clear_checkpoint()  # Clear checkpoint on successful completion
                         break
                     page += 1
                 else:
+                    self.clear_checkpoint()  # Clear checkpoint on successful completion
                     break
                 
                 time.sleep(2)  # Be polite to the server
             
-            print(f"\n✓ Total tenders scraped: {len(tenders)}")
-            return tenders
+            print(f"\n✓ Total tenders scraped: {total_tenders}")
             
         except Exception as e:
             print(f"✗ Error during scraping: {e}")
-            return tenders
-    
+            print(f"   💡 Tip: Run again with resume=True to continue from page {page}")
+            import traceback
+            traceback.print_exc()
+            
     def scrape_current_page(self):
-        """Scrape all tenders from the current page."""
-        tenders = []
-        
+        """Scrape tenders from the current page, yielding them one at a time."""
         try:
-            # Wait for tender table/list to load
-            WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, "table"))
+            # Wait for the main tender table
+            tender_table = WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult"))
             )
             
-            # Find all tender rows (adjust selectors based on actual HTML)
-            # Common patterns in Nepali government sites:
-            tender_rows = self.driver.find_elements(By.CSS_SELECTOR, "table tbody tr")
+            # First get the header row to identify columns
+            headers = tender_table.find_elements(By.CSS_SELECTOR, "thead tr th")
+            column_indices = self.identify_columns([h.text.strip() for h in headers])
             
-            if not tender_rows:
-                # Try alternative selectors
-                tender_rows = self.driver.find_elements(By.CSS_SELECTOR, ".tender-row")
+            if not column_indices:
+                print("   ⚠ Could not identify table columns")
+                return
             
-            if not tender_rows:
-                tender_rows = self.driver.find_elements(By.CSS_SELECTOR, "tr.data-row")
+            # Find all tender rows
+            tender_rows = tender_table.find_elements(By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr")
+            print(f"   Found {len(tender_rows)} tender rows")
             
             for row in tender_rows:
                 try:
-                    tender_data = self.parse_tender_row(row)
+                    tender_data = self.parse_tender_row(row, column_indices)
                     if tender_data:
-                        tenders.append(tender_data)
+                        yield tender_data  # Yield each tender as it's parsed
                 except Exception as e:
+                    print(f"   ⚠ Error parsing row: {str(e)}")
                     continue
             
         except TimeoutException:
             print("   Timeout waiting for tender table")
         except Exception as e:
             print(f"   Error scraping page: {e}")
-        
-        return tenders
+            
+        return  # Generator function ends here
     
     def parse_tender_row(self, row):
         """Parse individual tender row."""
@@ -163,90 +228,54 @@ class BolpatraScraper:
             # Get all cells in the row
             cells = row.find_elements(By.TAG_NAME, "td")
             
-            if len(cells) < 4:
+            # Known column indices (0-based)
+            SI_NO = 0
+            IFB_NO = 1
+            TITLE = 2
+            PUBLIC_ENTITY = 3
+            PROCUREMENT_TYPE = 4
+            STATUS = 5
+            NOTICE_DATE = 6
+            SUBMISSION_DATE = 7
+            DAYS_LEFT = 8
+
+            if len(cells) < 9:  # Ensure we have all expected columns
+                return None
+                
+            # Extract data using known positions
+            ifb = cells[IFB_NO].text.strip()
+            if not ifb:
                 return None
             
-            # Common structure (adjust based on actual site):
-            # [#, Tender No, Title, Organization, Type, Amount, Deadline, Status]
-            
-            # Extract title (usually in 2nd or 3rd column)
-            title = ""
-            for i in [1, 2, 3]:
-                if i < len(cells):
-                    text = cells[i].text.strip()
-                    if len(text) > 20:  # Likely the title
-                        title = text
-                        break
-            
+            # Extract data using known positions
+            title = cells[TITLE].text.strip()
             if not title:
                 return None
+                
+            # Get organization directly from its known column
+            public_entity_name = cells[PUBLIC_ENTITY].text.strip()
+
+            # Get notice date directly from its known column
+            notice_date = cells[NOTICE_DATE].text.strip()
+
+            # Get submission deadline directly from its column
+            deadline = cells[SUBMISSION_DATE].text.strip()
+            if deadline:
+                deadline = self.normalize_date(deadline)
             
-            # Extract organization
-            organization = ""
-            for cell in cells:
-                text = cell.text.strip()
-                if any(org_word in text.lower() for org_word in ['office', 'department', 'ministry', 'division']):
-                    organization = text
-                    break
-            
-            # Extract amount
-            amount = 0
-            for cell in cells:
-                text = cell.text.strip()
-                # Look for numbers with Rs or NPR
-                amount_match = re.search(r'(?:Rs\.?|NPR)?\s*([\d,]+(?:\.\d+)?)', text)
-                if amount_match:
-                    amount_str = amount_match.group(1).replace(',', '')
-                    try:
-                        amount = float(amount_str)
-                        break
-                    except:
-                        pass
-            
-            # Extract deadline
-            deadline = ""
-            for cell in cells:
-                text = cell.text.strip()
-                # Look for date patterns (YYYY-MM-DD or DD/MM/YYYY or DD-MM-YYYY)
-                date_match = re.search(r'(\d{4}[-/]\d{2}[-/]\d{2}|\d{2}[-/]\d{2}[-/]\d{4})', text)
-                if date_match:
-                    date_str = date_match.group(1)
-                    deadline = self.normalize_date(date_str)
-                    break
-            
-            # Extract category/type
-            category = "Not specified"
-            for cell in cells:
-                text = cell.text.strip().lower()
-                if 'consult' in text:
-                    category = "Consultancy"
-                    break
-                elif 'goods' in text:
-                    category = "Goods"
-                    break
-                elif 'works' in text or 'construction' in text:
-                    category = "Works"
-                    break
-            
-            # Try to click and get more details
-            try:
-                # Look for view/detail link
-                detail_link = row.find_element(By.CSS_SELECTOR, "a.btn, a.view-btn, a[href*='detail']")
-                detail_url = detail_link.get_attribute('href')
-            except:
-                detail_url = None
-            
+            # Extract category/type from procurement type column
+            procurement_type = cells[PROCUREMENT_TYPE].text.strip().lower()
+
             return {
+                'ifb_no': ifb,
                 'title': title,
-                'organization': organization or "Not specified",
-                'amount': amount,
+                'organization': public_entity_name or "Not specified",
                 'deadline': deadline or "Not specified",
-                'category': category,
+                'Procurement Type': procurement_type or "Not specified",
+                'notice date': notice_date,
                 'province': "Not specified",
-                'description': "",
                 'source': 'Bolpatra',
                 'scraped_date': datetime.now().strftime("%Y-%m-%d"),
-                'url': detail_url
             }
             
         except Exception as e:
@@ -267,21 +296,59 @@ class BolpatraScraper:
             return date_str
     
     def go_to_next_page(self):
-        """Navigate to next page of results."""
+        """Navigate to next page if valid tenders exist."""
         try:
-            # Look for next button
-            next_button = self.driver.find_element(By.CSS_SELECTOR, 
-                "a.next, button.next, a[aria-label='Next'], li.next a")
-            
-            if 'disabled' in next_button.get_attribute('class'):
+            # Wait for rows to load
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr"))
+            )
+            tender_rows = self.driver.find_elements(By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr")
+
+            has_valid_tenders = False
+            for row in tender_rows:
+                cells = row.find_elements(By.TAG_NAME, "td")
+                if len(cells) < 5:
+                    continue
+                print("Columns found:", len(cells), [c.text for c in cells])  # debug
+                days_left_text = cells[-1].text.strip()  # safer to take last column
+                try:
+                    days_left = int(re.search(r'\d+', days_left_text).group())
+                    if days_left > 28:
+                        has_valid_tenders = True
+                        break
+                except ValueError:
+                    continue
+
+            if not has_valid_tenders:
+                print("   No tenders with >28 days left found on this page")
                 return False
-            
+
+            # Find next page button (multiple fallbacks)
+            try:
+                next_button = self.driver.find_element(By.CSS_SELECTOR, "a#next, button#next, img.next")
+            except NoSuchElementException:
+                print("   ⚠ No next button found.")
+                return False
+
+            # Check if disabled
+            if not next_button.is_enabled() or "disabled" in next_button.get_attribute("outerHTML").lower():
+                print("   🚫 Next button disabled or hidden.")
+                return False
+
+            # Click next and wait for reload
             next_button.click()
-            time.sleep(2)
+            WebDriverWait(self.driver, 10).until(EC.staleness_of(tender_rows[0]))
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr"))
+            )
+            time.sleep(1)
+            print("➡️  Moved to next page successfully.")
             return True
-            
+
         except NoSuchElementException:
+            print("   ⚠ Table not found.")
             return False
+    
     
     def get_tender_details(self, tender_url):
         """Get detailed information about a specific tender."""
@@ -415,12 +482,20 @@ class TenderManager:
         text = (title + " " + description).lower()
         return any(keyword in text for keyword in KEYWORDS)
     
-    def scrape_bolpatra(self, headless=True):
-        """Scrape ALL available tenders from Bolpatra using Selenium."""
+    def scrape_bolpatra(self, headless=True, resume=True):
+        """
+        Scrape ALL available tenders from Bolpatra using Selenium.
+        
+        Args:
+            headless: Run browser in headless mode (default: True)
+            resume: Try to resume from last checkpoint (default: True)
+        """
         print("\n" + "="*60)
         print(" BOLPATRA WEB SCRAPER ".center(60))
         print("="*60)
         print("\n🔍 Scraping ALL available pages...")
+        if resume:
+            print("   📋 Will attempt to resume from last checkpoint")
         
         try:
             self.scraper = BolpatraScraper(headless=headless)
@@ -442,10 +517,14 @@ class TenderManager:
                 if self.is_relevant_tender(t['title'], t.get('description', ''))
             ]
             
-            # Add new tenders (avoid duplicates)
+            # Process each tender as we get it
             added = 0
             duplicates = 0
-            for tender in relevant_tenders:
+            
+            for tender in scraped_tenders:
+                if not self.is_relevant_tender(tender['title'], tender.get('description', '')):
+                    continue
+                    
                 # Check for duplicates by title and organization
                 is_duplicate = any(
                     t['title'] == tender['title'] and 
@@ -455,13 +534,13 @@ class TenderManager:
                 
                 if not is_duplicate:
                     self.tenders.append(tender)
+                    print(f"\n✓ New tender found: {tender['title'][:60]}...")
+                    # Save immediately after each new tender
+                    self.save_data(format='both')
                     added += 1
                 else:
+                    print(f"\n↺ Duplicate tender: {tender['title'][:60]}...")
                     duplicates += 1
-            
-            # Save to both JSON and CSV
-            if added > 0:
-                self.save_data(format='both')
             
             print(f"\n{'='*60}")
             print(f"📊 SCRAPING RESULTS:")
@@ -504,9 +583,8 @@ class TenderManager:
         
         for i, tender in enumerate(display_tenders, 1):
             print(f"[{i}] {tender['title']}")
-            print(f"    Organization: {tender['organization']}")
+            print(f"    Public entity name: {tender['organization']}")
             print(f"    Province: {tender.get('province', 'N/A')}")
-            print(f"    Amount: NPR {tender['amount']:,.2f}")
             print(f"    Deadline: {tender['deadline']}")
             print(f"    Category: {tender.get('category', 'N/A')}")
             print(f"    Source: {tender.get('source', 'Unknown')}")
@@ -539,7 +617,7 @@ class TenderManager:
         elif choice == "2":
             term = input("Enter keyword: ").strip().lower()
             results = [t for t in self.tenders if term in t['title'].lower() or 
-                      term in t.get('description', '').lower()]
+                    term in t.get('description', '').lower()]
         
         elif choice == "3":
             term = input("Enter organization: ").strip().lower()
