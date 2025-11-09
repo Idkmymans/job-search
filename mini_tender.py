@@ -196,11 +196,7 @@ class BolpatraScraper:
             
             # First get the header row to identify columns
             headers = tender_table.find_elements(By.CSS_SELECTOR, "thead tr th")
-            column_indices = self.identify_columns([h.text.strip() for h in headers])
             
-            if not column_indices:
-                print("   ⚠ Could not identify table columns")
-                return
             
             # Find all tender rows
             tender_rows = tender_table.find_elements(By.CSS_SELECTOR, "table#dashBoardBidResult tbody tr")
@@ -208,7 +204,7 @@ class BolpatraScraper:
             
             for row in tender_rows:
                 try:
-                    tender_data = self.parse_tender_row(row, column_indices)
+                    tender_data = self.parse_tender_row(row)
                     if tender_data:
                         yield tender_data  # Yield each tender as it's parsed
                 except Exception as e:
