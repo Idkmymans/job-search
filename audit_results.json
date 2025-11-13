@@ -96,5 +96,803 @@
     "organization": "Haldibari Rural M unicipality",
     "relevant": false,
     "days_left": 22
+  },
+  {
+    "index": 15,
+    "title": "Upgrading of Ratamata Dekhi Model School Hundai Ghatkhola Bato, Rainadebi Chhahara-04/Amalabas Dekhi Tilakthan Jane Bato ( Okharpata), Rainadebi Chhahara-04",
+    "organization": "Road Infrastructure Development Office, Palpa",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 16,
+    "title": "Finishing Work of Library Building of Gorkha Campus, Gorkha",
+    "organization": "Gorkha Campus , Gorkha",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 17,
+    "title": "Infrastructure Development works at Okhaldhunga Campus, Siddhicharan 12, Okhaldhunga",
+    "organization": "Infrastructure Development Office (IDO), Okhaldhunga",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 18,
+    "title": "Birami Ration",
+    "organization": "Nepal Police Hospital Maharajgunj Kathmandu",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 19,
+    "title": "Construction of Shree Janapremi Ma.Vi. School Building, Tri.Na.Pa.-01, Udayapur",
+    "organization": "Triyuga Municipality Office",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 20,
+    "title": "Construction of Shree Janata Ma.Vi. School Building, Tri.Na.Pa.-15, Udayapur",
+    "organization": "Triyuga Municipality Office",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 21,
+    "title": "Different Community School Strengthening Program of Kamal Rural Municipality",
+    "organization": "Kamal Rural Municipality",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 22,
+    "title": "Construction of RCC Framed Building of Manab Sewa Aashram at Ward No. 15 DSMC",
+    "organization": "Dhangadhi Sub-Metropolitan City",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 23,
+    "title": "Construction of Building for Bipana warg ka laagi awasyak nirman",
+    "organization": "Bindabasini Rural Municipality, Parsa",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 24,
+    "title": "Construction Of School Building Work at Kalika Aa.Vi. Tilagupha Municipality-11 Kamkhet Kalikot.",
+    "organization": "Social Development Office, Kalikot",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 25,
+    "title": "Construction School Playground Work at Shree Mahadev Ma.Vi. Shubhakalika Rural Municipality-04, Rarakatiya Kalikot.",
+    "organization": "Social Development Office, Kalikot",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 26,
+    "title": "Construction Of School Building Work at Shree Saraswati Gurukul Aa.Vi. Khandachakra-01 Manma Kalikot.",
+    "organization": "Social Development Office, Kalikot",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 27,
+    "title": "Hay Store Nirman",
+    "organization": "Sheep Genetic Resource Center, Nuwakot",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 28,
+    "title": "Fencing and Barricading to Prevent External Encroachments",
+    "organization": "Sheep Genetic Resource Center, Nuwakot",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 29,
+    "title": "Infrastructure development in Shahid Smriti Secondary School and Chandika Basic School",
+    "organization": "Shahid Lakhan Rural Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 30,
+    "title": "Construction Of Balbodh Primary School Ward No.-5,Rolpa",
+    "organization": "Sunil Smriti Rural Municipality, Office of Rural Municipal Executive,Sulichaur, Rolpa",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 31,
+    "title": "Constrcution of Building",
+    "organization": "Haripur Municipality",
+    "relevant": true,
+    "days_left": 32
+  },
+  {
+    "index": 32,
+    "title": "Construction of masonry Wall at Jhamkeswori secondary school Thaha-1",
+    "organization": "Thaha Municipality Office, Makawanpur",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 33,
+    "title": "Rakxyachaur Guru Jajur School Dekhi Purano Ward Karyalaye Samma Sadak Istarunnati",
+    "organization": "Tulsipur Sub-Metropolitan City",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 34,
+    "title": "Upgrading of Kalika Campus Jane Motarmarga, Bhanu-9",
+    "organization": "Infrastructure Development Office, Tanahun",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 35,
+    "title": "Construction of Pharmacy, Canteen, Counter and Postmortem Building Management",
+    "organization": "Provincial Hospital Bhadrapur,koshi",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 36,
+    "title": "Construction of Sahid Smiriti Park Project,Palungtar-04,Gorkha",
+    "organization": "Palungtar Municipality",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 37,
+    "title": "Construction Of Shed And Building At Gudari Bazar, Parwanipur-03",
+    "organization": "Parwanipur Rural Municipality, Bara",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 38,
+    "title": "Shanti Namuna Ma Vi Sabhahall Nirman Tilottama-5, Rupandehi",
+    "organization": "Samajik Bikash Division Office,Rupandehi",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 39,
+    "title": "Belhiya Ma Vi, DPR Sahit ko Bhawan Nirman",
+    "organization": "Samajik Bikash Division Office,Rupandehi",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 40,
+    "title": "Construction of First Building Block A&amp;B of Janki Ma. Vi. Janki- 04 Khajurakhurd, Banke",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 41,
+    "title": "Construction of Incomplete Building of Shree Bhrikuti Ma. Vi. Chittle Madhuban- 05 Sanoshree, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 42,
+    "title": "Construction of Incomplete Building of Shree Kisan Ma. Vi. Thakurbaba- 05 Bankatti, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 43,
+    "title": "Construction of Building of Shree Nepal Rastriya Aa. Vi. Rajapur- 03 Tediya, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 44,
+    "title": "Construction of Sabha Hall of Shree Manpur Ma. Vi. Rajapur- 06 Tapara, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 45,
+    "title": "Construction of Building of Shree Dharma Jyoti Secondary School Madhuwan- 09 Dharmabasti, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 46,
+    "title": "Construction of Building of Shree Jan Jyoti Ma. Vi. Thakurbaba- 06 Bakuwa, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 47,
+    "title": "Construction of Building of Shree Shivsundar Ma. Vi. Thakurbaba- 07 Sundarpur, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 48,
+    "title": "Construction of Incomplete Building of Brahmakumari Ishworiya Bishwa Bidhyalaya Baijanath- 06 Parbati Tol, Banke",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 49,
+    "title": "Construction of Hall Room And Toilet of Shree Guransh Namuna Ma. Vi. Madhuban- 06, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 50,
+    "title": "Construction of Incomplete Building of Acchami Sewa Samaj Nepalgunj- 19 Bashudevpur, Banke",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 51,
+    "title": "Construction of Canteen Building of Shree Ek Priye Rathor Ma.Vi. Patabhar Geruwa- 02, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 52,
+    "title": "Construction of Incomplete Building of Chure Campus Thakurbaba- 03 Bagnaha, Bardiya",
+    "organization": "Social Development Division Office Nepalgunj,Banke",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 53,
+    "title": "Construction of Compound wall for Rural Municipality Hospital Builing",
+    "organization": "Gokulganga Rural Municipality, Ramechhap",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 54,
+    "title": "Construction of Namadi Health Post Building",
+    "organization": "Gokulganga Rural Municipality, Ramechhap",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 55,
+    "title": "Construction of Sahalkot Health Post Building Nisdi-02 Palpa.",
+    "organization": "Nisdi Rural Municipality",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 56,
+    "title": "Lok priya Ma.Bi. Ma Three Room Two nos. Building And Other Construction works",
+    "organization": "Chame Rural Municipality",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 57,
+    "title": "Upgrading of : 1)Pauli Ganesh Chowk Paschim Hudai Piyang gaun Pokhari Mui Kuwa Pugne Rajkulo Mathi Sadak 2)Samabesi Tole Dekhi Jyotidaye School Jane Motorbato Staronnati 3)Maskey Ko Ghar Jane chowk Dekhi Babita Shrestha, Rajkumari Timilsinako Ghar Dekhi Bhupa rai ko Ghar samma bato 4)Khuma KC Ko Ghar Agadibata Hariyali Park Jane samma Laxmi Tamangko Ghar Samma bato",
+    "organization": "Infrastructure Development Office Lalitpur",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 58,
+    "title": "High Altitude Adventure Tourism Stadium Construction Project",
+    "organization": "Apihimal Rural Municipality, Darchula",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 59,
+    "title": "Adhuro Badminton Covered Hall Nirman, Khel Maidan Staronnati, Birendranagar-2, Surkhet",
+    "organization": "Birendranagar Municipality, Surkhet",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 60,
+    "title": "Completion of Canteen and Multipurpose Hall Block, Punarbas Janata Mabi, Punarbas-06, Kanchanpur",
+    "organization": "Shree Punarbas Janata Secondary School",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 61,
+    "title": "Extension of library block of Depot Secondary School,Dharan-18",
+    "organization": "Dharan Sub- Metropolitan City Office, Dharan",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 62,
+    "title": "Construction of Remaining work of Bandipur Hospital",
+    "organization": "Bandipur Hospital",
+    "relevant": true,
+    "days_left": 25
+  },
+  {
+    "index": 63,
+    "title": "Construction of Inbuilt School Building",
+    "organization": "kolhabi Municipality, Bara",
+    "relevant": true,
+    "days_left": 25
+  },
+  {
+    "index": 64,
+    "title": "Construction of Two Storey Four Class Rooms of School Building and Toilet Block (KM/NCB/BLDG/05/2082-083)",
+    "organization": "kolhabi Municipality, Bara",
+    "relevant": true,
+    "days_left": 25
+  },
+  {
+    "index": 65,
+    "title": "Construction of Two Storey Four Class Rooms of School Building and Toilet Block (KM/NCB/BLDG/06/2082-083)",
+    "organization": "kolhabi Municipality, Bara",
+    "relevant": true,
+    "days_left": 25
+  },
+  {
+    "index": 66,
+    "title": "Construction of additional structures over the existing Buipa Sewa Samaj building at Buipa.",
+    "organization": "Diktel Rupakot Majhuwagadhi Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 67,
+    "title": "Completion of the unfinished Shree MaVi, Basbote 8 room-RCC building construction work.",
+    "organization": "Diktel Rupakot Majhuwagadhi Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 68,
+    "title": "Construction of School Building-Shree Pragatishil Aa.Vi 01 Bukichaur Rukum West",
+    "organization": "Sanibheri Rural Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 69,
+    "title": "Construction of School Building Shree Shiv Aa.vi Sanibheri 09 Magarranja Rukum west",
+    "organization": "Sanibheri Rural Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 70,
+    "title": "Tulsipur Bahu Prabidhik Sikshyalaya ma Sabha Hall ko Finishing ko kaam, Tulsipur 12, Dang",
+    "organization": "Social Development Division Office,Dang",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 71,
+    "title": "CCONSTRUCTION OF COVERED HALL,PALUNGTAR-04,GORKHA",
+    "organization": "Palungtar Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 72,
+    "title": "Nirmit Guruyojanaka Aadharma Sthaniya tahko Sajhedarima Bidhyalaiko Vautik Nirman Anudan antargat Gyan jyoti School ma Vawan nirman karya,Ward No.1",
+    "organization": "Prasauni Rural Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 73,
+    "title": "Construction of RCC Building Completion Work",
+    "organization": "Shree Raghunath Adarsha Technical Secondary School",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 74,
+    "title": "Construction of Nepal Krishi Co-operative Building (Finishing Work), Ward-05",
+    "organization": "Ratnanagar Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 75,
+    "title": "Cities 4 Women (C4W) Inclusive and Climate Resilient Urbanization in Nepal , Ramawapur Park Sunwal-04",
+    "organization": "Sunwal Municipality Office",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 76,
+    "title": "Construction of 2-Storey-4-Room Building of Ghatal bahumukhi champus, samadaijee, Bedkot-03, Kanchanpur.",
+    "organization": "Bedkot Municipality, Kanchanpur",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 77,
+    "title": "Start Up Business Building Construction (Partial Finishing work) Work",
+    "organization": "Office of the Municipal Executive, Dhankutta",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 78,
+    "title": "R.C.C. Building Construction of Juntara Primary School, Khorke, 6, Birendranagar, Surkhet",
+    "organization": "Education development Directorate, Surkhet",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 79,
+    "title": "2 Room R.C.C Building Construction (Hostel Building) of Nepal Rastriya Secondary School Neta, 5,Lekbesi, Surkhet",
+    "organization": "Education development Directorate, Surkhet",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 80,
+    "title": "Physical Infrastructure Development of Surkhet Eye Hospital Birendranagar, 6, Surkhet",
+    "organization": "Education development Directorate, Surkhet",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 81,
+    "title": "Siddharatnanath School ko Truss Bhawan Nirman Ghorahi Oda no 10",
+    "organization": "Social Development Division Office,Dang",
+    "relevant": true,
+    "days_left": 22
+  },
+  {
+    "index": 82,
+    "title": "Construction of Health Post Building Including Infrastructure at Ward no. 3",
+    "organization": "Jaimini Municipality, Baglung",
+    "relevant": true,
+    "days_left": 21
+  },
+  {
+    "index": 83,
+    "title": "Construction of Building: Yagyashori Aa.Vi Mandavi Ga.Pa-04 Pyuthan",
+    "organization": "Social Development Division office, pyuthan",
+    "relevant": true,
+    "days_left": 20
+  },
+  {
+    "index": 84,
+    "title": "Upgrading of Pokharathok Khel Maidan to Janapriye School Jane Sadak Dhalan, Purbakhola 6 Heklang",
+    "organization": "Road Infrastructure Development Office, Palpa",
+    "relevant": true,
+    "days_left": 20
+  },
+  {
+    "index": 85,
+    "title": "Construction of Infrastructure at Hungi Health Post",
+    "organization": "Rambha Rural Municipality, Palpa",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 86,
+    "title": "Construction of Residential Building at Ward No.: 1,2,4 and 5",
+    "organization": "Rambha Rural Municipality, Palpa",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 87,
+    "title": "Mahendra Rajmargh To Khel Maidan Urban Infrastructure Development works, Bardghat-14, Nawalparasi.",
+    "organization": "Urban Development and Building Office, Rupandehi",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 88,
+    "title": "Construction of Bhume Pooja (Balku) Conservation Center Building At Putha Uttrarganga Rural municipality-11",
+    "organization": "Putha Uttarganga Rural Municipality, Rukum, East",
+    "relevant": true,
+    "days_left": 10
+  },
+  {
+    "index": 89,
+    "title": "Construction of School building, shree Ra.Aa. bidhalay Baradoriya, Bateshwor RM-5",
+    "organization": "Shree Rastriya Aadharbhut Bidhyalaya, Bateshwor",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 90,
+    "title": "Academic Building Construction of Shree Panchadev Secondary School Khandachakra-1, Kalikot",
+    "organization": "Shree Panchadev Secondary School, Manma Kalikot",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 91,
+    "title": "Construction of 4 class room building for Tribhuwan Ma.Vi. Aiselukharka, Khotang",
+    "organization": "Aiselukharka Rural Municipality",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 92,
+    "title": "Construction of school building work at BhanubhaktanMa.Vi. Bafikot Ga.pa.10 Rukum West",
+    "organization": "Social Development Office, Rukum West",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 93,
+    "title": "Construction of Building Work Chaurjahari Nagar Hospital at Chaurjahari Na.Pa-10 Rukum West",
+    "organization": "Social Development Office, Rukum West",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 94,
+    "title": "Construction of toilet, Compounding works of Puspanjali Mahila sahakari Building at Chaurjahari Na.Pa.09 Rukum West",
+    "organization": "Social Development Office, Rukum West",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 95,
+    "title": "Construction of Plum Concrete Wall Of Chaurjahari Rangshala at Chaurjahari Na.Pa -02 and Construction of Building Work at Rastriya Aa.Vi.Saniberi Ga.pa.04 Rukum West",
+    "organization": "Social Development Office, Rukum West",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 96,
+    "title": "Construction of Shed type Building, Retaining Wall, Septic Tank/Soak Pit and Other Civil Works @ No.51 Company HQ., Baitadi.",
+    "organization": "Armed Police Force Nepal No.51 Coy HQ. Baitadi",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 97,
+    "title": "Construction of Shed type Building, Retaining Wall, Septic Tank/Soak Pit and Other Civil Works @ No.52 Company HQ., Dadeldhura.",
+    "organization": "Armed Police Force, Nepal Coy. HQ. Dadeldhura No. 52 Coy.",
+    "relevant": true,
+    "days_left": 28
+  },
+  {
+    "index": 98,
+    "title": "Construction of Ward Admistrative Building, Ratuwamai-08",
+    "organization": "Ratuwamai Municipality, Morang",
+    "relevant": true,
+    "days_left": 31
+  },
+  {
+    "index": 99,
+    "title": "Infrastructure Development At PHC Ward No.6",
+    "organization": "Satyawati Rural Municipality",
+    "relevant": true,
+    "days_left": 29
+  },
+  {
+    "index": 100,
+    "title": "Nepal Police Computer Network Internet/Intranet Bandwidth (Command Center)",
+    "organization": "Nepal Police Headquarter Procurememt Section, Naxal",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 101,
+    "title": "Building Construction of Jagannath Multiple Campus Gothalapani , Baitadi.",
+    "organization": "Social Development Office,Baitadi",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 102,
+    "title": "Building Construction at Basudev Ma.Vi. Liskita ,Surnaya -2 Baitadi.",
+    "organization": "Social Development Office,Baitadi",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 103,
+    "title": "Construction Of Prefab Building for Staff Quater at District Hospital , Baitadi",
+    "organization": "Social Development Office,Baitadi",
+    "relevant": true,
+    "days_left": 27
+  },
+  {
+    "index": 104,
+    "title": "Physical Infrastructure Construction Project on Educational Upgrading and Quality Education.",
+    "organization": "Duhun Rural Municipality",
+    "relevant": true,
+    "days_left": 22
+  },
+  {
+    "index": 105,
+    "title": "Construction of Multipurpose Building at Takokiba (New Buspark)",
+    "organization": "Bhaktapur Municipality",
+    "relevant": true,
+    "days_left": 20
+  },
+  {
+    "index": 106,
+    "title": "Construction of Incomplete Building of Shree Mahendra Aadharbhut's School at Bishrampur Rural Municipality Ward no.5,Nakatuwa,Bara.",
+    "organization": "Bishrampur Rural Municipality, Bara",
+    "relevant": true,
+    "days_left": 20
+  },
+  {
+    "index": 107,
+    "title": "Construction of Store Building at Itahari Hospital, Itahari, Sunsari",
+    "organization": "Itahari hospital",
+    "relevant": true,
+    "days_left": 20
+  },
+  {
+    "index": 108,
+    "title": "Construction of Various Infrastructures Camp at Sataula Chhangru, Darchula",
+    "organization": "Development Construction Directorate",
+    "relevant": true,
+    "days_left": 20
+  },
+  {
+    "index": 109,
+    "title": "Construction Of Auditorium Hall at Lamki Multiple Campus Lamkichuha-01 Kailali",
+    "organization": "Social Development Office, Kailali",
+    "relevant": true,
+    "days_left": 18
+  },
+  {
+    "index": 110,
+    "title": "Suryapura Bahumukhi Campus Bhawan Nirman",
+    "organization": "Gaidahawa Rural Municipality",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 111,
+    "title": "Namuna Bidhyalaya Guruyojana Anurup Bhautik Nirman",
+    "organization": "Shree saraswati Secondary School, Terhathum",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 112,
+    "title": "Ward no. 5 community building construction additional work",
+    "organization": "Khajura Rural Municipality,Banke",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 113,
+    "title": "Paraspur gaughat sadak hari dadelko ghar dekhi citizen school hudai janaki ga.pa. 3 sahadatpur chock samma kalopatre bato nirman khajura ga.pa 2 ra janaki ga.pa.4",
+    "organization": "Khajura Rural Municipality,Banke",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 114,
+    "title": "Construction of Incomplete Hostel Building at Kyoulethana Aabhi.",
+    "organization": "Melamchi Municipality Office",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 115,
+    "title": "Jaycees Everest School ko Aduro Bhawan Nirman Dhangadhi-02, Kailali",
+    "organization": "Social Development Office, Kailali",
+    "relevant": true,
+    "days_left": 15
+  },
+  {
+    "index": 116,
+    "title": "Sitaram Secondary School Building Construction Works at Shikhar Municipality-09, Doti",
+    "organization": "Sitaram Secondary School, Doti",
+    "relevant": true,
+    "days_left": 14
+  },
+  {
+    "index": 117,
+    "title": "Truss Building construction work at semen collection yard of the animal",
+    "organization": "National Livestock Breeding Office, Banke",
+    "relevant": true,
+    "days_left": 14
+  },
+  {
+    "index": 118,
+    "title": "Construction of Building at Primary Health Centre (Addition of Storey ),ward 3",
+    "organization": "Shuddodhan Rural Municipality Office of Rural Municipal Executive,Rupandehi",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 119,
+    "title": "Construction of Building at Shankar Ma.vi.(Dogana Block),ward 3",
+    "organization": "Shuddodhan Rural Municipality Office of Rural Municipal Executive,Rupandehi",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 120,
+    "title": "Padmodaya Campus Haridwar ma Bhawan Nirman Ghorahi 17, Dang",
+    "organization": "Social Development Division Office,Dang",
+    "relevant": true,
+    "days_left": 17
+  },
+  {
+    "index": 121,
+    "title": "Mahakali High School, Chhayachetra Primary School, Pashupati Primary School and Mahadev Primary School Building Construction, Chhayanath Rara Municipality-1,2,3, &amp; 8, Mugu.",
+    "organization": "chhayanathrara Municipality, Mugu",
+    "relevant": true,
+    "days_left": 24
+  },
+  {
+    "index": 122,
+    "title": "Adarsha Prabidhik Campus Nirman",
+    "organization": "Pratappur Rural Municipality",
+    "relevant": true,
+    "days_left": 25
+  },
+  {
+    "index": 123,
+    "title": "Construction Of Hostel Building in Birendra Bidhya Mandir, Tikapur-01, Kailali",
+    "organization": "Social Development Office, Kailali",
+    "relevant": true,
+    "days_left": 25
+  },
+  {
+    "index": 124,
+    "title": "4 Room building Construction Suryaprakash Secondary School Panchapuri MP, 2, Palaite, Surkhet",
+    "organization": "Education development Directorate, Surkhet",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 125,
+    "title": "Compound Wall Construction on Krishnagunj Secondary School,Birendranagar MP-2 Krishnagunj",
+    "organization": "Education development Directorate, Surkhet",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 126,
+    "title": "Dumripokhara Covered Hall Nirmann, Gulmidarbar Rural Municipality-07, Gulmi",
+    "organization": "Gulmidarbar Rural Municipality",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 127,
+    "title": "Basic Science Building Renovation work",
+    "organization": "Maharajgunj Medical Campus, Maharajgunj",
+    "relevant": true,
+    "days_left": 19
+  },
+  {
+    "index": 128,
+    "title": "Horticulture Center/Station Upgrade- Dry Fruit Development Center-Baitadi, Sudurpashchim",
+    "organization": "Nuts and Fruits in Hilly Areas Project, PIU sudurpashchim,Doti",
+    "relevant": true,
+    "days_left": 19
   }
 ]

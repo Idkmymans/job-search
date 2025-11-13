@@ -24,11 +24,11 @@ INCLUDE_KEYWORDS = [
 ]
 
 EXCLUDE_KEYWORDS = [
-    "supply", "procurement", "delivery", "purchase", "repair", "maintenance",
+    "supply", "delivery", "purchase", "repair", "maintenance",
     "vehicle", "road", "bridge", "culvert", "pipeline", "water supply",
     "drainage", "medicine", "drug", "equipment", "machinery", "printing",
-    "furniture", "it support", "software", "hardware", "office", "stationery",
-    "agriculture", "fertilizer", "river", "sand", "gravel", "bitumen",
+    "it support", "software", "hardware", "stationery",
+    "agriculture", "fertilizer", "river", "sand", "gravel",
     "cement", "pavement", "asphalt"
 ]
 
@@ -831,7 +831,6 @@ class TenderManager:
             for i, tender in enumerate(results, 1):
                 print(f"[{i}] {tender['title']}")
                 print(f"    Organization: {tender['organization']}")
-                print(f"    Amount: NPR {tender['amount']:,.2f}")
                 print(f"    Deadline: {tender['deadline']}")
                 print()
         else:
