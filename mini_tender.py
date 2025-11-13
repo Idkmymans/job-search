@@ -1,8 +1,3 @@
-#imp notice:
-# fix the scrape_current_page method to not rely on dynamic column indices
-#fix so that json is updated DURING scraping
-# fix formatting of tenders(main issue probably)
-
 
 import json
 import os
@@ -32,46 +27,11 @@ class BolpatraScraper:
     def __init__(self, headless=True):
         self.headless = headless
         self.driver = None
-        self.checkpoint_file = "scraper_checkpoint.json"
         
-    def save_checkpoint(self, page_number):
-        """Save the current page number to resume later."""
-        try:
-            checkpoint_data = {
-                'last_page': page_number,
-                'timestamp': datetime.now().isoformat(),
-                'url': self.driver.current_url if self.driver else None
-            }
-            with open(self.checkpoint_file, 'w') as f:
-                json.dump(checkpoint_data, f)
-            print(f"   ✓ Checkpoint saved: page {page_number}")
-        except Exception as e:
-            print(f"   ⚠ Could not save checkpoint: {e}")
-    
-    def load_checkpoint(self):
-        """Load the last saved checkpoint if it exists."""
-        try:
-            if os.path.exists(self.checkpoint_file):
-                with open(self.checkpoint_file, 'r') as f:
-                    data = json.load(f)
-                    last_page = data.get('last_page', 1)
-                    last_url = data.get('url')
-                    timestamp = data.get('timestamp')
-                    print(f"\n📋 Found checkpoint from {timestamp}")
-                    print(f"   Last scraped page: {last_page}")
-                    return last_page, last_url
-        except Exception as e:
-            print(f"   ⚠ Could not load checkpoint: {e}")
-        return 1, None
-    
-    def clear_checkpoint(self):
-        """Clear the checkpoint after successful completion."""
-        if os.path.exists(self.checkpoint_file):
-            try:
-                os.remove(self.checkpoint_file)
-                print("   ✓ Checkpoint cleared")
-            except:
-                pass
+    # Checkpoint system removed: persistent de-duplication is handled via
+    # TenderManager.seen_keys (seen_keys.json). The checkpoint functions were
+    # intentionally removed to keep scraping stateless between runs because
+    # seen-keys prevent re-saving duplicates.
     
     def init_driver(self):
         """Initialize Chrome WebDriver with options."""
@@ -103,7 +63,7 @@ class BolpatraScraper:
             self.driver.quit()
             print("✓ Browser closed")
     
-    def scrape_tenders(self, scrape_all_pages=True, resume=True):
+    def scrape_tenders(self, scrape_all_pages=True):
         """
         Scrape tenders from bolpatra.gov.np
         Yields tender dictionaries one at a time
@@ -119,43 +79,30 @@ class BolpatraScraper:
         try:
             print("\n📡 Connecting to Bolpatra...")
             
-            # Load checkpoint if resuming
-            start_page = 1
-            if resume:
-                start_page, last_url = self.load_checkpoint()
-                if last_url:
-                    print(f"   Resuming from page {start_page}")
-                    self.driver.get(last_url)
-                    time.sleep(3)
-                else:
-                    start_page = 1
-            
-            # If not resuming or no valid checkpoint, start from beginning
-            if start_page == 1:
+            # Always start from the main search page
+            self.driver.get(f"{base_url}/searchOpportunity")
+            time.sleep(3)  # Wait for page load
+            print("✓ Page loaded successfully")
+
+            # Try to find and click on "Published Bids" or similar
+            try:
+                # Look for the bid opportunities link
+                opportunities_link = WebDriverWait(self.driver, 10).until(
+                    EC.element_to_be_clickable((By.LINK_TEXT, "Published bids"))
+                )
+                opportunities_link.click()
+                time.sleep(2)
+            except Exception:
+                # Alternative: direct navigation
                 self.driver.get(f"{base_url}/searchOpportunity")
-                time.sleep(3)  # Wait for page load
-                print("✓ Page loaded successfully")
-                
-                # Try to find and click on "Published Bids" or similar
-                try:
-                    # Look for the bid opportunities link
-                    opportunities_link = WebDriverWait(self.driver, 10).until(
-                        EC.element_to_be_clickable((By.LINK_TEXT, "Published bids"))
-                    )
-                    opportunities_link.click()
-                    time.sleep(2)
-                except:
-                    # Alternative: direct navigation
-                    self.driver.get(f"{base_url}/searchOpportunity")
-                    time.sleep(3)
+                time.sleep(3)
             
             print("✓ Navigated to tender listings")
             
             # Scrape all pages
-            page = start_page
+            page = 1
             tenders_on_page = 0
             total_tenders = 0
-            max_pages = 80
             
             while True:
                 print(f"\n📄 Scraping page {page}...")
@@ -170,27 +117,14 @@ class BolpatraScraper:
                 print(f"   Found {tenders_on_page} tenders on this page")
                 print(f"   Total tenders so far: {total_tenders}")
                 
-                # Save checkpoint after successful page processing
-                self.save_checkpoint(page)
-                
-                # Handle pagination
+                # Handle pagination: try to go to the next page; stop when navigation fails
                 next_page = page + 1
-                
-                # Check page limit
-                if next_page > max_pages:
-                    print("✅ Reached maximum page limit.")
-                    self.clear_checkpoint()
-                    break
-                
-                # Try to go to next page
                 if scrape_all_pages:
                     if not self.go_to_next_page(next_page):
                         print("   ✓ Reached last page or navigation failed")
-                        self.clear_checkpoint()
                         break
                     page = next_page  # Update page number only after successful navigation
                 else:
-                    self.clear_checkpoint()
                     break
                 
                 time.sleep(2)  # Be polite to the server
@@ -199,7 +133,7 @@ class BolpatraScraper:
             
         except Exception as e:
             print(f"✗ Error during scraping: {e}")
-            print(f"   💡 Tip: Run again with resume=True to continue from page {page}")
+            print("   💡 Tip: Run again to retry; persistent seen-keys will avoid duplicate saves.")
             import traceback
             traceback.print_exc()
             
@@ -271,6 +205,14 @@ class BolpatraScraper:
             deadline = cells[SUBMISSION_DATE].text.strip()
             if deadline:
                 deadline = self.normalize_date(deadline)
+            # compute days left (deadline - today) when possible
+            days_left = None
+            if deadline:
+                try:
+                    dt = datetime.strptime(deadline, "%Y-%m-%d")
+                    days_left = (dt - datetime.now()).days
+                except Exception:
+                    days_left = None
             
             # Extract category/type from procurement type column
             procurement_type = cells[PROCUREMENT_TYPE].text.strip().lower()
@@ -284,6 +226,7 @@ class BolpatraScraper:
                 'notice date': notice_date,
                 'province': "Not specified",
                 'source': 'Bolpatra',
+                'days_left': days_left,
                 'scraped_date': datetime.now().strftime("%Y-%m-%d"),
             }
             
@@ -309,13 +252,14 @@ class BolpatraScraper:
         try:
             
             # Find and clear the page input
-            goto_input = self.driver.find_element(By.CSS_SELECTOR, "input.gotoPage")
+            goto_input = self.driver.find_element(By.CSS_SELECTOR, "table#pager tbody tr input.gotoPage")
             goto_input.clear()
             goto_input.send_keys(str(next_page))
             time.sleep(1)  # Brief pause after typing
             
             # Click the go button
-            gobutton = self.driver.find_element(By.CSS_SELECTOR, "img.goto")
+            gobutton = self.driver.find_element(By.CSS_SELECTOR, "table#pager tbody tr img.goto")
+            WebDriverWait(self.driver, 10).until( EC.element_to_be_clickable((By.CSS_SELECTOR, "table#pager tbody tr img.goto")) )
             gobutton.click()
             
             # Wait for the page to load and verify we're on the right page
@@ -358,9 +302,13 @@ class TenderManager:
     def __init__(self):
         self.json_filename = "tenders.json"
         self.csv_filename = "tenders.csv"
+        self.seen_keys_file = "seen_keys.json"
+        self.seen_keys = set()
         self.tenders = []
         self.scraper = None
         self.load_data()
+        # load or build persisted seen-keys to avoid duplicates across runs
+        self.load_seen_keys()
     
     def load_data(self):
         """Load tenders from JSON or CSV, prioritizing JSON."""
@@ -406,6 +354,47 @@ class TenderManager:
         except Exception as e:
             print(f"⚠ Error loading CSV: {e}")
             return self.get_default_tenders()
+
+    def _make_key(self, title, organization):
+        """Create a stable key for a tender based on title and organization.
+
+        Keys are lower-cased and stripped to reduce false negatives due to
+        capitalization/whitespace differences.
+        """
+        t = (title or "").strip().lower()
+        o = (organization or "").strip().lower()
+        return f"{t}|||{o}"
+
+    def load_seen_keys(self):
+        """Load persisted seen-keys from disk or build from loaded tenders."""
+        try:
+            if os.path.exists(self.seen_keys_file):
+                with open(self.seen_keys_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    # stored as list of strings
+                    self.seen_keys = set(data)
+                    print(f"✓ Loaded {len(self.seen_keys)} seen keys from {self.seen_keys_file}")
+                    return
+        except Exception as e:
+            print(f"⚠ Error loading seen keys: {e}")
+
+        # If file not present or failed to load, build from currently loaded tenders
+        self.seen_keys = set()
+        for t in self.tenders:
+            key = self._make_key(t.get('title'), t.get('organization'))
+            self.seen_keys.add(key)
+        # persist the rebuilt keys
+        self.save_seen_keys()
+
+    def save_seen_keys(self):
+        """Persist the seen-keys set to disk."""
+        try:
+            with open(self.seen_keys_file, 'w', encoding='utf-8') as f:
+                json.dump(list(self.seen_keys), f, indent=2, ensure_ascii=False)
+            # small confirmation
+            # print(f"✓ Saved {len(self.seen_keys)} seen keys to {self.seen_keys_file}")
+        except Exception as e:
+            print(f"⚠ Error saving seen keys: {e}")
     
     def save_to_json(self):
         """Save tenders to JSON file."""
@@ -476,25 +465,44 @@ class TenderManager:
             }
         ]
     
-    def is_relevant_tender(self, title, description=""):
-        """Check if tender is related to architecture or consultancy."""
-        text = (title + " " + description).lower()
+    def is_relevant_tender(self, title, context=""):
+        """Check if a tender is relevant to architecture/consultancy.
+
+        This function looks for any of the KEYWORDS inside a small text
+        context built from the title and optional context string (description,
+        organization, etc.). It returns True if any keyword is present.
+
+        Args:
+            title: the tender title (string)
+            context: optional additional text to search (organization, description)
+
+        Example usage:
+            # simplest: only title
+            is_relevant_tender(title)
+
+            # include organization or description for better matching
+            is_relevant_tender(title, description + " " + organization)
+        """
+        text = (title or "") + " " + (context or "")
+        text = text.lower()
         return any(keyword in text for keyword in KEYWORDS)
     
-    def scrape_bolpatra(self, headless=True, resume=True):
+    def scrape_bolpatra(self, headless=True):
         """
         Scrape ALL available tenders from Bolpatra using Selenium.
-        
+
         Args:
             headless: Run browser in headless mode (default: True)
-            resume: Try to resume from last checkpoint (default: True)
+
+        Note:
+            Checkpoint/resume behavior was removed in favor of a persistent
+            `seen_keys.json` file which prevents duplicate saves across runs.
         """
         print("\n" + "="*60)
         print(" BOLPATRA WEB SCRAPER ".center(60))
         print("="*60)
         print("\n🔍 Scraping ALL available pages...")
-        if resume:
-            print("   📋 Will attempt to resume from last checkpoint")
+        # Note: checkpoint system removed; persistent seen-keys avoid duplicates across runs
         
         try:
             self.scraper = BolpatraScraper(headless=headless)
@@ -521,29 +529,46 @@ class TenderManager:
             duplicates = 0
             
             for tender in scraped_tenders:
-                # TEMPORARY: Disabled relevant_tender filter
-                # To re-enable relevancy checking, uncomment these lines:
-                # if not self.is_relevant_tender(tender['title'], tender.get('description', '')):
-                #     continue
-                    
-                # Check for duplicates by title and organization
-                is_duplicate = any(
-                    t['title'] == tender['title'] and 
-                    t['organization'] == tender['organization'] 
-                    for t in self.tenders
-                )
-                
-                if not is_duplicate:
-                    self.tenders.append(tender)
-                    print(f"\n✓ New tender found: {tender['title'][:60]}...")
-                    # DEBUG: Print current tenders count
-                    print(f"   Current tenders in memory: {len(self.tenders)}")
-                    # Save only to JSON for now
-                    self.save_to_json()
-                    added += 1
-                else:
-                    print(f"\n↺ Duplicate tender: {tender['title'][:60]}...")
+                # Build a small text context for relevancy checking. We include
+                # both the description (if available) and the organization name
+                # because keywords might appear in either field.
+                context_text = (
+                    str(tender.get('description', '')) + " " + str(tender.get('organization', ''))
+                ).strip()
+
+                # RELEVANCY CHECK: only proceed to save if tender looks relevant.
+                # This prevents unrelated tenders being written to the JSON.
+                if not self.is_relevant_tender(tender.get('title', ''), context_text):
+                    # skip non-relevant tenders
+                    continue
+
+                # DAYS LEFT FILTER: only save tenders with sufficient time remaining
+                # Skip tenders with unknown or soon-to-expire deadlines (<=21 days)
+                days_left_val = tender.get('days_left')
+                if days_left_val is None:
+                    print(f"   Skipping tender with unknown deadline: {tender.get('title','')[:60]}...")
+                    continue
+                if days_left_val <= 21:
+                    print(f"   Skipping tender; days left ({days_left_val}) <= 21: {tender.get('title','')[:60]}...")
+                    continue
+
+                # DUPLICATE CHECK: use persistent seen-keys to avoid duplicates across runs
+                key = self._make_key(tender.get('title'), tender.get('organization'))
+                if key in self.seen_keys:
+                    print(f"\n↺ Duplicate tender (seen before): {tender.get('title','')[:60]}...")
                     duplicates += 1
+                    continue
+
+                # At this point the tender is relevant and not a duplicate — save it
+                self.tenders.append(tender)
+                print(f"\n✓ New relevant tender found: {tender.get('title','')[:60]}...")
+                print(f"   Current tenders in memory: {len(self.tenders)}")
+                # Persist only to JSON (CSV saving disabled for now)
+                self.save_to_json()
+                # Update persisted seen keys so future runs skip this tender
+                self.seen_keys.add(key)
+                self.save_seen_keys()
+                added += 1
             
             print(f"\n{'='*60}")
             print(f"📊 SCRAPING RESULTS:")
@@ -716,9 +741,19 @@ class TenderManager:
             "scraped_date": datetime.now().strftime("%Y-%m-%d")
         }
         
+        # Prevent duplicates across runs by checking persisted seen-keys
+        key = self._make_key(new_tender.get('title'), new_tender.get('organization'))
+        if key in self.seen_keys:
+            print("\n↺ This tender appears to be a duplicate and was not added.")
+            return
+
         self.tenders.append(new_tender)
-        self.save_data(format='both')
-        print("\n✓ Tender added and saved to both JSON and CSV!")
+        # Persist only to JSON for now (CSV can be enabled if desired)
+        self.save_to_json()
+        # update seen keys and persist
+        self.seen_keys.add(key)
+        self.save_seen_keys()
+        print("\n✓ Tender added and saved to JSON!")
     
     def export_to_csv(self):
         """Export relevant tenders to a timestamped CSV file."""
