@@ -23,6 +23,26 @@ KEYWORDS = [
     'dpr', 'survey', 'estimate', 'drawing', 'technical', 'planning'
 ]
 
+# Improved include/exclude lists for a hybrid filter
+INCLUDE_KEYWORDS = [
+    "architect", "architecture", "architectural", "design", "consultant",
+    "consultancy", "supervision", "engineering design", "engineering services",
+    "technical proposal", "structural", "civil design", "urban", "planning",
+    "landscape", "interior", "drawing", "survey", "topographical", "soil test",
+    "geotechnical", "master plan", "detailed project report", "dpr",
+    "construction supervision", "project management consultant", "bim",
+    "autocad", "infrastructure design"
+]
+
+EXCLUDE_KEYWORDS = [
+    "supply", "procurement", "delivery", "purchase", "repair", "maintenance",
+    "vehicle", "road", "bridge", "culvert", "pipeline", "water supply",
+    "drainage", "medicine", "drug", "equipment", "machinery", "printing",
+    "furniture", "it support", "software", "hardware", "office", "stationery",
+    "agriculture", "fertilizer", "river", "sand", "gravel", "bitumen",
+    "cement", "pavement", "asphalt"
+]
+
 class BolpatraScraper:
     def __init__(self, headless=True):
         self.headless = headless
@@ -368,7 +388,9 @@ class TenderManager:
         self.json_filename = "tenders.json"
         self.csv_filename = "tenders.csv"
         self.seen_keys_file = "seen_keys.json"
+        self.non_relevant_seen_file = "non_relevant_seen_keys.json"
         self.seen_keys = set()
+        self.non_relevant_seen_keys = set()
         self.tenders = []
         self.scraper = None
         self.load_data()
@@ -441,17 +463,33 @@ class TenderManager:
                     # stored as list of strings
                     self.seen_keys = set(data)
                     print(f"✓ Loaded {len(self.seen_keys)} seen keys from {self.seen_keys_file}")
+                    # continue to also try loading non-relevant keys
+            if os.path.exists(self.non_relevant_seen_file):
+                with open(self.non_relevant_seen_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.non_relevant_seen_keys = set(data)
+                    print(f"✓ Loaded {len(self.non_relevant_seen_keys)} non-relevant seen keys from {self.non_relevant_seen_file}")
                     return
         except Exception as e:
             print(f"⚠ Error loading seen keys: {e}")
 
         # If file not present or failed to load, build from currently loaded tenders
         self.seen_keys = set()
+        self.non_relevant_seen_keys = set()
         for t in self.tenders:
             key = self._make_key(t.get('title'), t.get('organization'), t.get('notice date') or t.get('scraped_date'))
-            self.seen_keys.add(key)
+            # decide where to put the key based on relevancy
+            try:
+                if self.is_relevant_tender(t.get('title'), t.get('description', '')):
+                    self.seen_keys.add(key)
+                else:
+                    self.non_relevant_seen_keys.add(key)
+            except Exception:
+                # if any error, put into seen_keys to avoid reprocessing
+                self.seen_keys.add(key)
         # persist the rebuilt keys
         self.save_seen_keys()
+        self.save_non_relevant_seen_keys()
 
     def save_seen_keys(self):
         """Persist the seen-keys set to disk."""
@@ -462,6 +500,15 @@ class TenderManager:
             # print(f"✓ Saved {len(self.seen_keys)} seen keys to {self.seen_keys_file}")
         except Exception as e:
             print(f"⚠ Error saving seen keys: {e}")
+
+    def save_non_relevant_seen_keys(self):
+        """Persist the non-relevant seen-keys set to disk."""
+        try:
+            with open(self.non_relevant_seen_file, 'w', encoding='utf-8') as f:
+                json.dump(list(self.non_relevant_seen_keys), f, indent=2, ensure_ascii=False)
+            # print(f"✓ Saved {len(self.non_relevant_seen_keys)} non-relevant seen keys to {self.non_relevant_seen_file}")
+        except Exception as e:
+            print(f"⚠ Error saving non-relevant seen keys: {e}")
     
     def save_to_json(self):
         """Save tenders to JSON file."""
@@ -533,26 +580,65 @@ class TenderManager:
         ]
     
     def is_relevant_tender(self, title, context=""):
-        """Check if a tender is relevant to architecture/consultancy.
+        """Hybrid relevancy check using an improved filter.
 
-        This function looks for any of the KEYWORDS inside a small text
-        context built from the title and optional context string (description,
-        organization, etc.). It returns True if any keyword is present.
+        Strategy:
+        1. Use a title-only hybrid filter (`is_architecture_related`) that
+           combines include/exclude keywords and a few context rules.
+        2. If title check fails, fall back to searching the combined
+           `title + context` for any include keywords while ensuring no
+           exclude keywords are present.
 
-        Args:
-            title: the tender title (string)
-            context: optional additional text to search (organization, description)
-
-        Example usage:
-            # simplest: only title
-            is_relevant_tender(title)
-
-            # include organization or description for better matching
-            is_relevant_tender(title, description + " " + organization)
+        This improves precision (fewer false positives) while keeping good
+        recall for obvious architecture/consultancy tenders.
         """
-        text = (title or "") + " " + (context or "")
-        text = text.lower()
-        return any(keyword in text for keyword in KEYWORDS)
+        title_text = (title or "").strip().lower()
+        context_text = (context or "").strip().lower()
+
+        # 1) Strong title-only hybrid filter
+        if self.is_architecture_related(title_text):
+            return True
+
+        # 2) Fallback: check combined text for include keywords but ensure no
+        # exclude keywords are present
+        combined = f"{title_text} {context_text}".strip()
+        if not combined:
+            return False
+        if any(ex in combined for ex in EXCLUDE_KEYWORDS):
+            return False
+        return any(inc in combined for inc in INCLUDE_KEYWORDS)
+
+    def is_architecture_related(self, title: str) -> bool:
+        """Hybrid filter (title-only) adapted from the proposed rules.
+
+        Returns True if title strongly indicates architecture/consultancy.
+        """
+        if not title:
+            return False
+        text = title.lower()
+
+        # Quick keyword pre-filter
+        if not any(k in text for k in INCLUDE_KEYWORDS):
+            return False
+        if any(k in text for k in EXCLUDE_KEYWORDS):
+            return False
+
+        # Context rules
+        if "consult" in text and any(w in text for w in ["road", "bridge", "culvert"]):
+            return False
+
+        if "supervision" in text and not any(
+            w in text for w in ["building", "hospital", "school", "structure", "construction"]
+        ):
+            return False
+
+        # Strong positive contexts
+        if any(w in text for w in ["building", "hospital", "school", "campus", "embassy", "housing", "office design"]):
+            return True
+
+        # Catch-all: at least two positive keywords
+        matches = [w for w in INCLUDE_KEYWORDS if w in text]
+        return len(matches) >= 2
     
     def scrape_bolpatra(self, headless=True):
         """
@@ -594,80 +680,62 @@ class TenderManager:
             for tender in self.scraper.scrape_tenders(scrape_all_pages=True):
                 total_scraped += 1
 
-                # Create a persistent key for every tender (title|org|notice_date)
-                # and treat it as seen if it was unique. This ensures we don't
-                # repeatedly reprocess non-relevant tenders in future runs.
+                # Create a persistent key for the tender (title|org|notice_date)
                 key = self._make_key(
                     tender.get('title'),
                     tender.get('organization'),
                     tender.get('notice date') or tender.get('scraped_date')
                 )
 
-                if key in self.seen_keys:
-                    # Already processed (relevant or not) in a previous run
+                # If the key exists in either seen set, skip
+                if key in self.seen_keys or key in self.non_relevant_seen_keys:
                     print(f"\n↺ Duplicate tender (seen before): {tender.get('title','')[:60]}...")
                     duplicates += 1
                     continue
 
-                # Persist the new seen-key immediately for EVERY unique tender
-                # (regardless of relevancy) so future runs skip it.
-                self.seen_keys.add(key)
-                self.save_seen_keys()
-
-                # Build a small text context for relevancy checking. We include
-                # both the description (if available) and the organization name
-                # because keywords might appear in either field.
+                # Build context for relevancy checking
                 context_text = (
                     str(tender.get('description', '')) + " " + str(tender.get('organization', ''))
                 ).strip()
 
-                # RELEVANCY CHECK: only proceed to save if tender looks relevant.
-                # Non-relevant tenders will be marked as seen above and skipped.
-                if not self.is_relevant_tender(tender.get('title', ''), context_text):
-                    # skip non-relevant tenders (already marked seen)
+                # Check relevancy
+                is_relevant = self.is_relevant_tender(tender.get('title', ''), context_text)
+
+                # DAYS LEFT FILTER: decide behavior based on days_left
+                days_left_val = tender.get('days_left')
+
+                if not is_relevant:
+                    # Non-relevant: persist to non-relevant seen keys for audit
+                    print(f"   Non-relevant tender (marked seen): {tender.get('title','')[:60]}...")
+                    self.non_relevant_seen_keys.add(key)
+                    self.save_non_relevant_seen_keys()
                     continue
+
+                # At this point the tender is relevant
                 relevant_count += 1
 
-                # DAYS LEFT FILTER: only save tenders with sufficient time remaining
-                # Skip tenders with unknown or soon-to-expire deadlines (<=7 days)
-                days_left_val = tender.get('days_left')
+                # If days_left is unknown or <=7, mark as seen (do not save).
                 if days_left_val is None:
-                    print(f"   Skipping tender with unknown deadline: {tender.get('title','')[:60]}...")
+                    print(f"   Relevant but unknown deadline, marking as seen (not saved): {tender.get('title','')[:60]}...")
+                    self.seen_keys.add(key)
+                    self.save_seen_keys()
                     continue
+
                 if days_left_val <= 7:
-                    # Mark as seen but do not save the full tender. Also stop
-                    # further scraping because subsequent pages are likely older
-                    # (lower days left) and we don't need them.
-                    print(f"   Found tender with days_left={days_left_val} <= 7; marking as seen and ending scrape: {tender.get('title','')[:60]}...")
-                    key = self._make_key(
-                        tender.get('title'),
-                        tender.get('organization'),
-                        tender.get('notice date') or tender.get('scraped_date')
-                    )
+                    print(f"   Found relevant tender with days_left={days_left_val} <= 7; marking as seen and ending scrape: {tender.get('title','')[:60]}...")
                     self.seen_keys.add(key)
                     self.save_seen_keys()
                     stopped_early = True
                     break
 
-                # At this point the tender is relevant and was marked seen above.
-                # Decide whether to save based on days-left. If days_left > 7
-                # save the tender; otherwise do not save (we already persisted
-                # the seen-key above).
-                if days_left_val is None:
-                    print(f"   Skipping tender with unknown deadline: {tender.get('title','')[:60]}...")
-                    continue
-                if days_left_val <= 7:
-                    # We already added the key above; stop scraping as requested
-                    print(f"   Found tender with days_left={days_left_val} <= 7; ending scrape: {tender.get('title','')[:60]}...")
-                    stopped_early = True
-                    break
-
-                # Save the tender now (days_left > 7)
+                # Save the tender (days_left > 7)
                 self.tenders.append(tender)
                 print(f"\n✓ New relevant tender found: {tender.get('title','')[:60]}...")
                 print(f"   Current tenders in memory: {len(self.tenders)}")
-                # Persist only to JSON (CSV saving disabled for now)
                 self.save_to_json()
+                # Persist seen key for this relevant tender
+                self.seen_keys.add(key)
+                self.save_seen_keys()
                 added += 1
             
             if stopped_early:
