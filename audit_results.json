@@ -45,7 +45,7 @@
     "index": 7,
     "title": "Consulting Services for Shramadhan Call Center",
     "organization": "Secretariat of Foreign Employment Board",
-    "relevant": false,
+    "relevant": true,
     "days_left": 12
   },
   {
@@ -66,7 +66,7 @@
     "index": 10,
     "title": "Estimate for Construction of LT Line at Different Places of Krishnanagar DC",
     "organization": "NEA, Krishnanagar Distribution Center",
-    "relevant": false,
+    "relevant": true,
     "days_left": 12
   },
   {

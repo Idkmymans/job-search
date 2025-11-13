@@ -13,25 +13,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-# Architecture and consultancy related keywords
-KEYWORDS = [
-    'architect', 'architecture', 'architectural', 'design',
-    'consultancy', 'consultant', 'consulting', 'supervision',
-    'engineering design', 'structural', 'building design',
-    'master plan', 'feasibility study', 'detailed design',
-    'construction supervision', 'project management consultant',
-    'dpr', 'survey', 'estimate', 'drawing', 'technical', 'planning'
-]
-
 # Improved include/exclude lists for a hybrid filter
 INCLUDE_KEYWORDS = [
-    "architect", "architecture", "architectural", "design", "consultant",
-    "consultancy", "supervision", "engineering design", "engineering services",
-    "technical proposal", "structural", "civil design", "urban", "planning",
-    "landscape", "interior", "drawing", "survey", "topographical", "soil test",
-    "geotechnical", "master plan", "detailed project report", "dpr",
-    "construction supervision", "project management consultant", "bim",
-    "autocad", "infrastructure design"
+    "architect", "architecture", "architectural", "design", "consultancy",
+    "consultant", "supervision", "engineering design", "structural", 
+    "building", "hospital", "school", "campus", "office", "housing",
+    "infrastructure", "layout", "survey", "mapping", "master plan",
+    "feasibility", "dpr", "detailed project report", "urban", 
+    "complex", "terminal", "hall", "park", "stadium", "facility", "center"
 ]
 
 EXCLUDE_KEYWORDS = [
@@ -579,66 +568,49 @@ class TenderManager:
             }
         ]
     
-    def is_relevant_tender(self, title, context=""):
-        """Hybrid relevancy check using an improved filter.
 
-        Strategy:
-        1. Use a title-only hybrid filter (`is_architecture_related`) that
-           combines include/exclude keywords and a few context rules.
-        2. If title check fails, fall back to searching the combined
-           `title + context` for any include keywords while ensuring no
-           exclude keywords are present.
+    @staticmethod
+    def is_architecture_related(title: str) -> bool:
+        """Improved architecture-related tender filter (title-only)."""
+        if not title:
+            return False
+        text = title.lower()
 
-        This improves precision (fewer false positives) while keeping good
-        recall for obvious architecture/consultancy tenders.
-        """
+        # 1️⃣ Quick pre-filter
+        if not any(k in text for k in INCLUDE_KEYWORDS):
+            return False
+        if any(k in text for k in EXCLUDE_KEYWORDS):
+            return False
+
+        # 2️⃣ Context reinforcement
+        strong_contexts = ["building", "hospital", "school", "campus", "office", "complex", "hall", "housing", "facility", "center"]
+        if any(ctx in text for ctx in strong_contexts):
+            return True
+
+        # 3️⃣ Catch high-confidence consultancy/design indicators
+        if any(k in text for k in ["dpr", "feasibility", "master plan", "architect", "consult", "supervision", "design"]):
+            return True
+
+        # 4️⃣ Hybrid heuristic: at least two positives, zero negatives
+        matches = [k for k in INCLUDE_KEYWORDS if k in text]
+        return len(matches) >= 2
+
+
+    @staticmethod
+    def is_relevant_tender(title: str, context: str = "") -> bool:
+        """Hybrid relevancy check combining title + optional context."""
         title_text = (title or "").strip().lower()
         context_text = (context or "").strip().lower()
 
-        # 1) Strong title-only hybrid filter
-        if self.is_architecture_related(title_text):
+        if TenderManager.is_architecture_related(title_text):
             return True
 
-        # 2) Fallback: check combined text for include keywords but ensure no
-        # exclude keywords are present
         combined = f"{title_text} {context_text}".strip()
         if not combined:
             return False
         if any(ex in combined for ex in EXCLUDE_KEYWORDS):
             return False
         return any(inc in combined for inc in INCLUDE_KEYWORDS)
-
-    def is_architecture_related(self, title: str) -> bool:
-        """Hybrid filter (title-only) adapted from the proposed rules.
-
-        Returns True if title strongly indicates architecture/consultancy.
-        """
-        if not title:
-            return False
-        text = title.lower()
-
-        # Quick keyword pre-filter
-        if not any(k in text for k in INCLUDE_KEYWORDS):
-            return False
-        if any(k in text for k in EXCLUDE_KEYWORDS):
-            return False
-
-        # Context rules
-        if "consult" in text and any(w in text for w in ["road", "bridge", "culvert"]):
-            return False
-
-        if "supervision" in text and not any(
-            w in text for w in ["building", "hospital", "school", "structure", "construction"]
-        ):
-            return False
-
-        # Strong positive contexts
-        if any(w in text for w in ["building", "hospital", "school", "campus", "embassy", "housing", "office design"]):
-            return True
-
-        # Catch-all: at least two positive keywords
-        matches = [w for w in INCLUDE_KEYWORDS if w in text]
-        return len(matches) >= 2
     
     def scrape_bolpatra(self, headless=True):
         """
