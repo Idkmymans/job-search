@@ -198,16 +198,30 @@ class BolpatraScraper:
             # Get organization directly from its known column
             public_entity_name = cells[PUBLIC_ENTITY].text.strip()
 
-            # Get notice date directly from its known column
-            notice_date = cells[NOTICE_DATE].text.strip()
+            # Get notice/publication date and normalize it
+            notice_date_raw = cells[NOTICE_DATE].text.strip()
+            notice_date = self.normalize_date(notice_date_raw) if notice_date_raw else ""
 
-            # Get submission deadline directly from its column
+            # Get submission deadline directly from its column (may not be used)
             deadline = cells[SUBMISSION_DATE].text.strip()
             if deadline:
                 deadline = self.normalize_date(deadline)
-            # compute days left (deadline - today) when possible
+
+            # Prefer the 'Days left' column value if present. It's a table column
+            # that may contain 'Expired' or a number like '27 days'. Fall back to
+            # computing from deadline if Days-left column is empty/unparseable.
             days_left = None
-            if deadline:
+            days_left_text = ""
+            try:
+                days_left_text = cells[DAYS_LEFT].text.strip()
+            except Exception:
+                days_left_text = ""
+
+            if days_left_text:
+                days_left = self.parse_days_left_text(days_left_text)
+
+            # Fallback: compute days left from deadline if parse failed
+            if days_left is None and deadline:
                 try:
                     dt = datetime.strptime(deadline, "%Y-%m-%d")
                     days_left = (dt - datetime.now()).days
@@ -246,6 +260,28 @@ class BolpatraScraper:
             return date_str
         except:
             return date_str
+
+    @staticmethod
+    def parse_days_left_text(days_text: str):
+        """Parse the 'Days left' text from the table and return integer days.
+
+        Examples handled:
+          '27', '27 days', '27 day(s)', 'Expired', 'Expired - 0', '-' -> returns -1
+        Returns an int or None if parsing fails.
+        """
+        if not days_text:
+            return None
+        t = days_text.strip().lower()
+        if 'expir' in t or 'expired' in t:
+            return -1
+        # Try to extract an integer
+        m = re.search(r"(\d+)", t)
+        if m:
+            try:
+                return int(m.group(1))
+            except:
+                return None
+        return None
     
     def go_to_next_page(self, next_page):
         """Navigate to next page of tender listings."""
@@ -259,8 +295,37 @@ class BolpatraScraper:
             
             # Click the go button
             gobutton = self.driver.find_element(By.CSS_SELECTOR, "table#pager tbody tr img.goto")
-            WebDriverWait(self.driver, 10).until( EC.element_to_be_clickable((By.CSS_SELECTOR, "table#pager tbody tr img.goto")) )
-            gobutton.click()
+
+            # Wait for any global overlay (modal/spinner) to disappear which can
+            # block clicks. Some pages show an overlay with id 'overlay' or class
+            # 'overlayCss'. Wait for invisibility if present.
+            try:
+                WebDriverWait(self.driver, 8).until(
+                    EC.invisibility_of_element_located((By.ID, "overlay"))
+                )
+            except Exception:
+                # ignore - overlay might not exist
+                pass
+
+            try:
+                WebDriverWait(self.driver, 8).until(
+                    EC.invisibility_of_element_located((By.CSS_SELECTOR, ".overlayCss"))
+                )
+            except Exception:
+                pass
+
+            # Scroll the button into view and use JS click to avoid interception
+            try:
+                self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", gobutton)
+            except Exception:
+                pass
+
+            try:
+                # JS click is more resilient to overlapping elements
+                self.driver.execute_script("arguments[0].click();", gobutton)
+            except Exception:
+                # Fall back to normal click
+                gobutton.click()
             
             # Wait for the page to load and verify we're on the right page
             try:
@@ -355,15 +420,17 @@ class TenderManager:
             print(f"⚠ Error loading CSV: {e}")
             return self.get_default_tenders()
 
-    def _make_key(self, title, organization):
+    def _make_key(self, title, organization, pub_date=None):
         """Create a stable key for a tender based on title and organization.
 
         Keys are lower-cased and stripped to reduce false negatives due to
         capitalization/whitespace differences.
         """
+        # New key shape: title ||| organization ||| pub_date
         t = (title or "").strip().lower()
         o = (organization or "").strip().lower()
-        return f"{t}|||{o}"
+        p = (pub_date or "").strip().lower()
+        return f"{t}|||{o}|||{p}"
 
     def load_seen_keys(self):
         """Load persisted seen-keys from disk or build from loaded tenders."""
@@ -381,7 +448,7 @@ class TenderManager:
         # If file not present or failed to load, build from currently loaded tenders
         self.seen_keys = set()
         for t in self.tenders:
-            key = self._make_key(t.get('title'), t.get('organization'))
+            key = self._make_key(t.get('title'), t.get('organization'), t.get('notice date') or t.get('scraped_date'))
             self.seen_keys.add(key)
         # persist the rebuilt keys
         self.save_seen_keys()
@@ -515,20 +582,17 @@ class TenderManager:
                 print("  webdriver.Chrome(ChromeDriverManager().install())")
                 return 0
             
-            # Scrape all pages (scrape_all_pages=True)
-            scraped_tenders =list(self.scraper.scrape_tenders(scrape_all_pages=True))
-            
-            # Filter for relevant tenders
-            relevant_tenders = [
-                t for t in scraped_tenders 
-                if self.is_relevant_tender(t['title'], t.get('description', ''))
-            ]
-            
-            # Process each tender as we get it
+            # Stream scraped tenders from the scraper generator. We iterate
+            # directly so that each tender can be processed and saved to disk
+            # immediately (no in-memory list of all scraped results).
             added = 0
             duplicates = 0
-            
-            for tender in scraped_tenders:
+            total_scraped = 0
+            relevant_count = 0
+
+            stopped_early = False
+            for tender in self.scraper.scrape_tenders(scrape_all_pages=True):
+                total_scraped += 1
                 # Build a small text context for relevancy checking. We include
                 # both the description (if available) and the organization name
                 # because keywords might appear in either field.
@@ -541,6 +605,7 @@ class TenderManager:
                 if not self.is_relevant_tender(tender.get('title', ''), context_text):
                     # skip non-relevant tenders
                     continue
+                relevant_count += 1
 
                 # DAYS LEFT FILTER: only save tenders with sufficient time remaining
                 # Skip tenders with unknown or soon-to-expire deadlines (<=21 days)
@@ -549,17 +614,43 @@ class TenderManager:
                     print(f"   Skipping tender with unknown deadline: {tender.get('title','')[:60]}...")
                     continue
                 if days_left_val <= 21:
-                    print(f"   Skipping tender; days left ({days_left_val}) <= 21: {tender.get('title','')[:60]}...")
-                    continue
+                    # Mark as seen but do not save the full tender. Also stop
+                    # further scraping because subsequent pages are likely older
+                    # (lower days left) and we don't need them.
+                    print(f"   Found tender with days_left={days_left_val} <= 21; marking as seen and ending scrape: {tender.get('title','')[:60]}...")
+                    key = self._make_key(
+                        tender.get('title'),
+                        tender.get('organization'),
+                        tender.get('notice date') or tender.get('scraped_date')
+                    )
+                    self.seen_keys.add(key)
+                    self.save_seen_keys()
+                    stopped_early = True
+                    break
 
-                # DUPLICATE CHECK: use persistent seen-keys to avoid duplicates across runs
-                key = self._make_key(tender.get('title'), tender.get('organization'))
+                # DUPLICATE CHECK: use persistent seen-keys (including publication
+                # date) to avoid duplicates across runs. If notice date is present
+                # include it so republished/updated tenders are treated as new.
+                key = self._make_key(
+                    tender.get('title'),
+                    tender.get('organization'),
+                    tender.get('notice date') or tender.get('scraped_date')
+                )
                 if key in self.seen_keys:
                     print(f"\n↺ Duplicate tender (seen before): {tender.get('title','')[:60]}...")
                     duplicates += 1
                     continue
+                # At this point the tender is relevant and not a duplicate — decide
+                # whether to save based on days-left. If days_left > 21 save the
+                # tender; otherwise mark it as seen (so we don't reprocess it).
+                if days_left_val is None or days_left_val <= 21:
+                    # Mark as seen but do not save the full tender
+                    print(f"   Skipping saving (days_left={days_left_val}) but marking as seen: {tender.get('title','')[:60]}...")
+                    self.seen_keys.add(key)
+                    self.save_seen_keys()
+                    continue
 
-                # At this point the tender is relevant and not a duplicate — save it
+                # Save the tender now (days_left > 21)
                 self.tenders.append(tender)
                 print(f"\n✓ New relevant tender found: {tender.get('title','')[:60]}...")
                 print(f"   Current tenders in memory: {len(self.tenders)}")
@@ -570,11 +661,14 @@ class TenderManager:
                 self.save_seen_keys()
                 added += 1
             
+            if stopped_early:
+                print("\n⚠ Stopped early due to encountering a tender with days_left <= 21")
+
             print(f"\n{'='*60}")
             print(f"📊 SCRAPING RESULTS:")
             print(f"{'='*60}")
-            print(f"   Total entries scraped: {len(scraped_tenders)}")
-            print(f"   Relevant (arch/consultancy): {len(relevant_tenders)}")
+            print(f"   Total entries scraped: {total_scraped}")
+            print(f"   Relevant (arch/consultancy): {relevant_count}")
             print(f"   New tenders added: {added}")
             print(f"   Duplicates skipped: {duplicates}")
             print(f"   Total tenders in database: {len(self.tenders)}")
@@ -742,7 +836,12 @@ class TenderManager:
         }
         
         # Prevent duplicates across runs by checking persisted seen-keys
-        key = self._make_key(new_tender.get('title'), new_tender.get('organization'))
+        # Use scraped_date as publication date for manual entries
+        key = self._make_key(
+            new_tender.get('title'),
+            new_tender.get('organization'),
+            new_tender.get('scraped_date')
+        )
         if key in self.seen_keys:
             print("\n↺ This tender appears to be a duplicate and was not added.")
             return

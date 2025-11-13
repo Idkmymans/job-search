@@ -1,1 +1,58 @@
-[]
+[
+  {
+    "title": "Architectural Design for Park",
+    "organization": "City Office A",
+    "deadline": "2025-12-31",
+    "days_left": 45,
+    "notice date": "2025-10-01",
+    "description": "Architectural design and planning of a new park"
+  },
+  {
+    "ifb_no": "NLBO-NPJ/NCB/WORKS/2082-083/01",
+    "title": "Maintenance of Shed and Structural improvement project",
+    "organization": "National Livestock Breeding Office, Banke",
+    "deadline": "12-12-2025 12:00",
+    "Procurement Type": "works  ncb",
+    "notice date": "12-11-2025 10:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 29,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "NEA/KPO/2082/083-HR-01",
+    "title": "Supply of technical human resource",
+    "organization": "NEA, Karnali Provience Office",
+    "deadline": "10-12-2025 12:00",
+    "Procurement Type": "goods  ncb",
+    "notice date": "10-11-2025 10:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 27,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "03-082/83(4)",
+    "title": "Road Improvement and Structural works at Charikot-Singati Road,NH-28,Dolakha",
+    "organization": "201 Division Road Office Charikot",
+    "deadline": "12-12-2025 12:00",
+    "Procurement Type": "works  ncb",
+    "notice date": "12-11-2025 00:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 29,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "03-082/83(5)",
+    "title": "Road Improvement and Structural works at Charikot-Jiri Section of Lamosanghu -Jiri Road(NH-23), Dolakha",
+    "organization": "201 Division Road Office Charikot",
+    "deadline": "12-12-2025 12:00",
+    "Procurement Type": "works  ncb",
+    "notice date": "12-11-2025 00:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 29,
+    "scraped_date": "2025-11-13"
+  }
+]
