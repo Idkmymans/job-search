@@ -54,5 +54,65 @@
     "source": "Bolpatra",
     "days_left": 29,
     "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "MTU-NCBWorks-04-082/083",
+    "title": "Completion of Third Floor of Academic Science Block",
+    "organization": "Manmohan Technical University, Morang",
+    "deadline": "30-11-2025 13:00",
+    "Procurement Type": "works  ncb",
+    "notice date": "30-10-2025 00:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 17,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "EOI/CC/SFEB/2082/083/02",
+    "title": "Consulting Services for Shramadhan Call Center",
+    "organization": "Secretariat of Foreign Employment Board",
+    "deadline": "25-11-2025 12:00",
+    "Procurement Type": "consultancy eoi  qcbs",
+    "notice date": "10-11-2025 00:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 12,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "KDC-2082.83-01(SQ)",
+    "title": "Estimate for Supply and Delivery of Different Electrical Goods and Accessories",
+    "organization": "NEA, Krishnanagar Distribution Center",
+    "deadline": "25-11-2025 08:00",
+    "Procurement Type": "goods  sealed quotation",
+    "notice date": "10-11-2025 08:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 12,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "KDC-2082.83-02(SQ)",
+    "title": "Estimate for Supply and Delivery of Different Stationery, Printing and Miscellaneous Items",
+    "organization": "NEA, Krishnanagar Distribution Center",
+    "deadline": "25-11-2025 08:00",
+    "Procurement Type": "goods  sealed quotation",
+    "notice date": "10-11-2025 08:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 12,
+    "scraped_date": "2025-11-13"
+  },
+  {
+    "ifb_no": "KDC-2082/83-03(SQ)",
+    "title": "Estimate for Construction of LT Line at Different Places of Krishnanagar DC",
+    "organization": "NEA, Krishnanagar Distribution Center",
+    "deadline": "25-11-2025 08:00",
+    "Procurement Type": "works  sealed quotation",
+    "notice date": "10-11-2025 08:00",
+    "province": "Not specified",
+    "source": "Bolpatra",
+    "days_left": 12,
+    "scraped_date": "2025-11-13"
   }
 ]

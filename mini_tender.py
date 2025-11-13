@@ -593,6 +593,27 @@ class TenderManager:
             stopped_early = False
             for tender in self.scraper.scrape_tenders(scrape_all_pages=True):
                 total_scraped += 1
+
+                # Create a persistent key for every tender (title|org|notice_date)
+                # and treat it as seen if it was unique. This ensures we don't
+                # repeatedly reprocess non-relevant tenders in future runs.
+                key = self._make_key(
+                    tender.get('title'),
+                    tender.get('organization'),
+                    tender.get('notice date') or tender.get('scraped_date')
+                )
+
+                if key in self.seen_keys:
+                    # Already processed (relevant or not) in a previous run
+                    print(f"\n↺ Duplicate tender (seen before): {tender.get('title','')[:60]}...")
+                    duplicates += 1
+                    continue
+
+                # Persist the new seen-key immediately for EVERY unique tender
+                # (regardless of relevancy) so future runs skip it.
+                self.seen_keys.add(key)
+                self.save_seen_keys()
+
                 # Build a small text context for relevancy checking. We include
                 # both the description (if available) and the organization name
                 # because keywords might appear in either field.
@@ -601,23 +622,23 @@ class TenderManager:
                 ).strip()
 
                 # RELEVANCY CHECK: only proceed to save if tender looks relevant.
-                # This prevents unrelated tenders being written to the JSON.
+                # Non-relevant tenders will be marked as seen above and skipped.
                 if not self.is_relevant_tender(tender.get('title', ''), context_text):
-                    # skip non-relevant tenders
+                    # skip non-relevant tenders (already marked seen)
                     continue
                 relevant_count += 1
 
                 # DAYS LEFT FILTER: only save tenders with sufficient time remaining
-                # Skip tenders with unknown or soon-to-expire deadlines (<=21 days)
+                # Skip tenders with unknown or soon-to-expire deadlines (<=7 days)
                 days_left_val = tender.get('days_left')
                 if days_left_val is None:
                     print(f"   Skipping tender with unknown deadline: {tender.get('title','')[:60]}...")
                     continue
-                if days_left_val <= 21:
+                if days_left_val <= 7:
                     # Mark as seen but do not save the full tender. Also stop
                     # further scraping because subsequent pages are likely older
                     # (lower days left) and we don't need them.
-                    print(f"   Found tender with days_left={days_left_val} <= 21; marking as seen and ending scrape: {tender.get('title','')[:60]}...")
+                    print(f"   Found tender with days_left={days_left_val} <= 7; marking as seen and ending scrape: {tender.get('title','')[:60]}...")
                     key = self._make_key(
                         tender.get('title'),
                         tender.get('organization'),
@@ -628,41 +649,29 @@ class TenderManager:
                     stopped_early = True
                     break
 
-                # DUPLICATE CHECK: use persistent seen-keys (including publication
-                # date) to avoid duplicates across runs. If notice date is present
-                # include it so republished/updated tenders are treated as new.
-                key = self._make_key(
-                    tender.get('title'),
-                    tender.get('organization'),
-                    tender.get('notice date') or tender.get('scraped_date')
-                )
-                if key in self.seen_keys:
-                    print(f"\n↺ Duplicate tender (seen before): {tender.get('title','')[:60]}...")
-                    duplicates += 1
+                # At this point the tender is relevant and was marked seen above.
+                # Decide whether to save based on days-left. If days_left > 7
+                # save the tender; otherwise do not save (we already persisted
+                # the seen-key above).
+                if days_left_val is None:
+                    print(f"   Skipping tender with unknown deadline: {tender.get('title','')[:60]}...")
                     continue
-                # At this point the tender is relevant and not a duplicate — decide
-                # whether to save based on days-left. If days_left > 21 save the
-                # tender; otherwise mark it as seen (so we don't reprocess it).
-                if days_left_val is None or days_left_val <= 21:
-                    # Mark as seen but do not save the full tender
-                    print(f"   Skipping saving (days_left={days_left_val}) but marking as seen: {tender.get('title','')[:60]}...")
-                    self.seen_keys.add(key)
-                    self.save_seen_keys()
-                    continue
+                if days_left_val <= 7:
+                    # We already added the key above; stop scraping as requested
+                    print(f"   Found tender with days_left={days_left_val} <= 7; ending scrape: {tender.get('title','')[:60]}...")
+                    stopped_early = True
+                    break
 
-                # Save the tender now (days_left > 21)
+                # Save the tender now (days_left > 7)
                 self.tenders.append(tender)
                 print(f"\n✓ New relevant tender found: {tender.get('title','')[:60]}...")
                 print(f"   Current tenders in memory: {len(self.tenders)}")
                 # Persist only to JSON (CSV saving disabled for now)
                 self.save_to_json()
-                # Update persisted seen keys so future runs skip this tender
-                self.seen_keys.add(key)
-                self.save_seen_keys()
                 added += 1
             
             if stopped_early:
-                print("\n⚠ Stopped early due to encountering a tender with days_left <= 21")
+                print("\n⚠ Stopped early due to encountering a tender with days_left <= 7")
 
             print(f"\n{'='*60}")
             print(f"📊 SCRAPING RESULTS:")
