@@ -275,7 +275,7 @@ class BolpatraScraper:
         """Parse the 'Days left' text from the table and return integer days.
 
         Examples handled:
-          '27', '27 days', '27 day(s)', 'Expired', 'Expired - 0', '-' -> returns -1
+        '27', '27 days', '27 day(s)', 'Expired', 'Expired - 0', '-' -> returns -1
         Returns an int or None if parsing fails.
         """
         if not days_text:
