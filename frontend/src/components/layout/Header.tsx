@@ -1,61 +1,79 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React from 'react';
+import { Menu, LogOut, Globe } from 'lucide-react';
+import { Button } from '../ui/Button';
 
-export interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'info';
-  message: string;
-  duration?: number;
+interface HeaderProps {
+  onMenuToggle: () => void;
+  lastUpdated?: string;
+  onScrapingStatus?: () => void;
+  isScrapingActive?: boolean;
+  onExit: () => void;
 }
 
-interface NotificationContextType {
-  notifications: Notification[];
-  addNotification: (type: Notification['type'], message: string, duration?: number) => void;
-  removeNotification: (id: string) => void;
-  clearNotifications: () => void;
-}
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
-
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  const addNotification = useCallback(
-    (type: Notification['type'], message: string, duration: number = 5000) => {
-      const id = Math.random().toString(36).substr(2, 9);
-      const notification: Notification = { id, type, message, duration };
-
-      setNotifications((prev) => [...prev, notification]);
-
-      if (duration > 0) {
-        setTimeout(() => {
-          removeNotification(id);
-        }, duration);
-      }
-    },
-    []
-  );
-
-  const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
-
-  const clearNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
-
+export const Header: React.FC<HeaderProps> = ({
+  onMenuToggle,
+  lastUpdated,
+  onScrapingStatus,
+  isScrapingActive,
+  onExit,
+}) => {
   return (
-    <NotificationContext.Provider
-      value={{ notifications, addNotification, removeNotification, clearNotifications }}
-    >
-      {children}
-    </NotificationContext.Provider>
-  );
-};
+    <header className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+      <div className="flex items-center justify-between px-4 py-3 sm:px-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onMenuToggle}
+            className="text-slate-600 hover:text-slate-900 lg:hidden transition-colors"
+            aria-label="Toggle menu"
+          >
+            <Menu size={24} />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">TM</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-slate-900">Tender Manager</h1>
+              <p className="text-xs text-slate-500">Pranaya's side project</p>
+            </div>
+          </div>
+        </div>
 
-export const useNotification = () => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider');
-  }
-  return context;
+        <div className="flex items-center gap-4">
+          {lastUpdated && (
+            <div className="hidden sm:flex flex-col items-end text-xs text-slate-500">
+              <p>Last Updated</p>
+              <p className="font-medium text-slate-700">{lastUpdated}</p>
+            </div>
+          )}
+
+          <button
+            onClick={onScrapingStatus}
+            className={`p-2 rounded-lg transition-colors ${
+              isScrapingActive
+                ? 'bg-orange-100 text-orange-600 hover:bg-orange-200'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+            title="Scraping status"
+            aria-label="Scraping status"
+          >
+            <Globe size={20} />
+            {isScrapingActive && (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-orange-600 rounded-full animate-pulse" />
+            )}
+          </button>
+
+          <Button
+            variant="subtle"
+            size="sm"
+            onClick={onExit}
+            icon={<LogOut size={18} />}
+            title="Exit application"
+          >
+            <span className="hidden sm:inline">Exit</span>
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
 };
